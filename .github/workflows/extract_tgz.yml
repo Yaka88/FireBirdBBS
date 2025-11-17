@@ -1,6 +1,7 @@
 name: Extract .tgz/.tar.gz to repo root and commit to main
 
 on:
+  workflow_dispatch:
   push:
     # 仅在 main 分支且 push 包含这些归档时触发（避免解压后再次触发）
     branches:

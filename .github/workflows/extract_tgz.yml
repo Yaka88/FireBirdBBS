@@ -1,9 +1,11 @@
-name: Extract .tgz/.tar.gz to repo root and commit to main
+name: Extract .tgz/.tar.gz and open PR
+
+# 给 workflow 写权限以便创建 PR / 提交变更
+permissions:
+  contents: write
 
 on:
-  workflow_dispatch:
   push:
-    # 仅在 main 分支且 push 包含这些归档时触发（避免解压后再次触发）
     branches:
       - main
     paths:
@@ -11,7 +13,7 @@ on:
       - '**/*.tar.gz'
 
 jobs:
-  extract-and-commit:
+  extract-and-pr:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -28,28 +30,24 @@ jobs:
           head='${{ github.sha }}'
 
           if [ "$before" = "0000000000000000000000000000000000000000" ]; then
-            # 初次提交（或新仓库）：列出被 git 跟踪的归档文件
             archives=$(git ls-files '*.tgz' '*.tar.gz' || true)
           else
-            # 正常比较：找出本次 push 中被改动/新增的归档路径
             archives=$(git diff --name-only "$before" "$head" | grep -E '\.tgz$|\.tar\.gz$' || true)
           fi
 
-          # 导出为输出变量（支持多行）
+          # 导出多行输出
           echo "archives<<EOF" >> $GITHUB_OUTPUT
           printf "%s\n" "$archives" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Extract archives into repository root and commit to main
-        env:
-          GIT_COMMITTER_NAME: github-actions[bot]
-          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+      - name: Extract archives safely into repo root
+        id: extract
         run: |
           set -euo pipefail
           archives="${{ steps.detect.outputs.archives }}"
 
           if [ -z "$archives" ]; then
-            echo "No archives detected in this push. Nothing to do."
+            echo "No archives detected."
             exit 0
           fi
 
@@ -57,8 +55,7 @@ jobs:
           echo "Workspace: $workspace"
 
           IFS=$'\n'
-          any_changed=false
-
+          any=false
           for a in $archives; do
             [ -n "$a" ] || continue
             if [ ! -f "$a" ]; then
@@ -66,34 +63,36 @@ jobs:
               continue
             fi
 
-            echo "Checking archive for unsafe paths: $a"
-            # 检查是否包含绝对路径或上级目录引用，防止目录穿越
+            echo "Checking $a for unsafe paths..."
             if tar -tzf "$a" | grep -E '(^/)|(\.\./)'; then
-              echo "Unsafe paths detected in $a — skipping extraction to repository root."
+              echo "Unsafe paths detected in $a — skipping extraction to repo root."
               continue
             fi
 
-            echo "Extracting $a -> repository root"
-            # 直接解压到仓库根目录（注意可能覆盖已有文件）
+            echo "Extracting $a -> $workspace"
             tar -xzf "$a" -C "$workspace"
-            any_changed=true
+            any=true
           done
 
-          # 只在确实有变化时提交
-          if [ "$any_changed" = true ]; then
-            git config user.name "${GIT_COMMITTER_NAME}"
-            git config user.email "${GIT_COMMITTER_EMAIL}"
-
-            # 确认有变动再提交
-            if [ -n "$(git status --porcelain)" ]; then
-              git add -A
-              git commit -m "Extract archives to repo root: ${GITHUB_SHA}"
-              # 直接推送到 main 分支（注意：若目标仓库对 main 有保护规则可能会被拒绝）
-              git push origin HEAD:main
-              echo "Pushed extracted files to main."
-            else
-              echo "No changes to commit after extraction."
-            fi
+          if [ "$any" = true ]; then
+            echo "Extraction done. Uncommitted changes present."
           else
-            echo "No archives were safely extracted."
+            echo "No safe archives were extracted."
           fi
+
+      - name: Create Pull Request with extracted files
+        # 这个 action 会把工作区里未提交的变更提交到新分支并创建 PR
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Extract archives:${{ steps.detect.outputs.archives }}
+          branch: extract/${{ github.run_id }}
+          title: 'Automated: Extract uploaded archive(s)'
+          body: |
+            This PR was opened automatically by a workflow that detected and extracted uploaded .tgz/.tar.gz archive(s):
+            ${{ steps.detect.outputs.archives }}
+
+            Please review the extracted files before merging.
+          base: main
+          labels: automated,extract
+          draft: false

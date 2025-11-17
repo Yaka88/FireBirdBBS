@@ -119,7 +119,7 @@ hog or anything, but if you don't want it...
 
 #define MAXUSERS  20236  /* Maximum number of users,780 aliament 1k*/
 #define MAXBOARD  256  /* Maximum number of boards */
-#define MAXACTIVE 512 
+#define MAXACTIVE 256 
                           /* Max users allowed on the system at once. Set this
                              to a reasonable value based on the resources of
                              your system. */
@@ -184,17 +184,17 @@ so we don't need define this by passing make argument to the complier
 #define BBSUID   9999
 #define BBSGID   99
 #define BBSHOME "/home/bbs"
-#define BBSNAME "ÐÂÏªÁ÷·¼Õ¾"
-#define BBSID   "yaka"
-#define BBSHOST "yaka.yi.org"
-#define BBSIP	"10.21.41.88"
+#define BBSNAME "FireBird BBS"
+#define BBSID   "FireBirdBBS"
+#define BBSHOST "bbs.firebird.local"
+#define BBSIP	"127.0.0.1"
 
 /*
 Define where's sendmail locate, it's not the same in different OSes
 If configure cannot found it propery, it will assign "/usr/lib/sendmail"
 for default.
 */
-#define	SENDMAIL "/usr/lib/sendmail"
+#define	SENDMAIL "/usr/sbin/sendmail"
 
 /*
 Define junk boards lists in a long string. any boards list in will not be

@@ -23,8 +23,8 @@
 $Id: chat.h.in,v 1.1 2000/01/15 01:45:24 edwardc Exp $
 */
 
-#define MY_BBS_NAME   "ÐÂÏªÁ÷·¼Õ¾"
-#define MY_BBS_DOMAIN "yaka.yi.org"
+#define MY_BBS_NAME   "FireBird BBS"
+#define MY_BBS_DOMAIN "bbs.firebird.local"
 
 /* chat.h - port numbers for the chat rooms -- changing them is wise. */
 #define CHATPORT1 7201

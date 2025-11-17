@@ -34,7 +34,7 @@ BBSGRP   = 99
 OS_DEF   = -DLINUX -DTERMIOS
 CC       = gcc
 FB_CFLAGS= ${CFLAGS} -Wunused -I../include
-LIBS     = -ltermcap -ldl -lrpcsvc -lbsd -lnsl -lcrypt
+LIBS     = -ltermcap -ldl -lrpcsvc -lbsd 
 
 INSTALL  = /usr/bin/install -c
 

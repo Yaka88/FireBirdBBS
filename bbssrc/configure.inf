@@ -2,9 +2,9 @@
 This file is generate by configure $Revision: 1.4 $
 ######################################################
 PERL=/usr/bin/perl
-BBS_ID=yaka
-DOMAIN=yaka.yi.org
-CNAME=ÐÂÏªÁ÷·¼Õ¾
+BBS_ID=FireBirdBBS
+DOMAIN=bbs.firebird.local
+CNAME=FireBird BBS
 DEFAULTBD=sysop
 BUILD_PLATFORM=linux
 LIBCRYPT=DES

@@ -5,7 +5,7 @@
 #
 
 CC       = gcc
-CFLAGS   = -g -O2 -I../../include
+CFLAGS   = -fno-stack-protector -O2 -I../../include
 BBSHOME	 = /home/bbs
 
 UTILITY  = account averun bbstop bbspop3d bfinger birthday horoscope \
@@ -24,7 +24,7 @@ clean:
 	rm -fr *.o *.BAK *.log $(UTILITY) *core* DEAD* *~
 
 bbspop3d:
-	$(CC) $(CFLAGS) -o bbspop3d bbspop3d.c -lcrypt
+	$(CC) $(CFLAGS) -o bbspop3d bbspop3d.c 
 
 bfinger: bfinger.c ../../src/modetype.c 
 	$(CC) $(CFLAGS) -o bfinger bfinger.c ../../src/modetype.c

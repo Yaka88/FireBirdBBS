@@ -9,12 +9,12 @@ RECORD_OBJ = $(BBS_SRC)/record.c
 CFLAGS = -I../../include
 INSTALLDIR = /home/bbs/bin
 PERL = /usr/bin/perl
-DOMAIN = yaka.yi.org
+DOMAIN = bbs.firebird.local
 
 all: mail2bbs fillperl install
 
 mail2bbs: mail2bbs.c $(RECORD_OBJ)
-	$(CC) $(CFLAGS) -DDOMAIN_NAME=\"'$(DOMAIN)'\" -DBBSNAME=\"'ÐÂÏªÁ÷·¼Õ¾'\" \
+	$(CC) $(CFLAGS) -DDOMAIN_NAME=\"'$(DOMAIN)'\" -DBBSNAME=\"'FireBird BBS'\" \
 	-Xlinker -Bstatic -o mail2bbs mail2bbs.c qp_conv.c mail-list.c $(RECORD_OBJ)
 
 install: mail2bbs

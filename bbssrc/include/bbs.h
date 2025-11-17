@@ -101,15 +101,15 @@ extern long ti ;
 #define MAXFRIENDS (200)
 #define MAXREJECTS (32)
 #define NUMPERMS   (30)
-#define REG_EXPIRED         180    /* ÖØ×öÉí·ÝÈ·ÈÏÆÚÏÞ */
-#define MAXGUEST			 16	   /* ×î¶à guest ÕÊºÅÉÏÕ¾¸öÊý */
+#define REG_EXPIRED         180    /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+#define MAXGUEST			 16	   /* ï¿½ï¿½ï¿½ guest ï¿½Êºï¿½ï¿½ï¿½Õ¾ï¿½ï¿½ï¿½ï¿½ */
 
 #define FILE_BUFSIZE        200    /* max. length of a file in SHM*/
 #define FILE_MAXLINE         25    /* max. line of a file in SHM */
-#define MAX_WELCOME          15    /* »¶Ó­»­ÃæÊý */
-#define MAX_GOODBYE          15    /* ÀëÕ¾»­ÃæÊý */
-#define MAX_ISSUE            15    /* ×î´ó½øÕ¾»­ÃæÊý */
-#define MAX_DIGEST         1000    /* ×î´óÎÄÕªÊý */
+#define MAX_WELCOME          15    /* ï¿½ï¿½Ó­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+#define MAX_GOODBYE          15    /* ï¿½ï¿½Õ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+#define MAX_ISSUE            15    /* ï¿½ï¿½ï¿½ï¿½Õ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+#define MAX_DIGEST         1000    /* ï¿½ï¿½ï¿½ï¿½ï¿½Õªï¿½ï¿½ */
 #define MAX_POSTRETRY       100
 
 #define MORE_BUFSIZE       4096
@@ -137,7 +137,7 @@ extern long ti ;
 #define PASSLEN			  	 14    /* User's password length (13 chars) */
 
 #ifdef CODE_VALID
-  #define RNDPASSLEN		 10	   /* °µÂëÈÏÖ¤µÄ°µÂë³¤¶È (ÊÊÒË·¶Î§ 4~10)*/
+  #define RNDPASSLEN		 10	   /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½Ä°ï¿½ï¿½ë³¤ï¿½ï¿½ (ï¿½ï¿½ï¿½Ë·ï¿½Î§ 4~10)*/
 #endif
 
 #define MAXGOPHERITEMS     9999    /* max of gopher items */
@@ -176,7 +176,7 @@ extern  char ULIST[];
 #define CURSOR_FLAG  0x80  /* true if the cursor mode open */
 #define ACTIVE_BOARD 0x200 /* true if user toggled active movie board on */
 
-#define DEF_VALUE		"  Ã»É¶´óÈÕ×Ó  "
+#define DEF_VALUE		"  Ã»É¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  "
 #define DEF_FILE		"etc/whatdate"
 
 #define MULTI_LOGINS	3	/* change number if you want, or disable it to
@@ -258,6 +258,13 @@ extern char currBM[] ;          /* BM of currently selected board */
 extern int selboard ;           /* THis flag is true if above is active */
 
 extern char genbuf[1024] ;      /* generally used global buffer */
+
+/* Forward declaration for commands structure */
+struct commands {
+	char *name;
+	void (*fptr)();
+	int type;
+};
 
 extern struct commands cmdlist[] ; /* main menu command list */
 

@@ -1,0 +1,14 @@
+*.o
+*.a
+*.so
+*.BAK
+*~
+.*.swp
+core
+a.out
+bbssrc/include/version.h
+bbssrc/src/bbsd
+bbssrc/src/chatd
+bbssrc/src/thread
+bbssrc/src/expire
+bbssrc/src/Install.sh

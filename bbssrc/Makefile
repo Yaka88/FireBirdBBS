@@ -32,9 +32,9 @@ BBSUID   = 9999
 BBSGRP   = 99
 
 OS_DEF   = -DLINUX -DTERMIOS
-CC       = gcc
+CC       = mipsel-linux-gnu-gcc
 FB_CFLAGS= ${CFLAGS} -Wunused -I../include
-LIBS     = -ltermcap -ldl -lrpcsvc -lbsd -lnsl -lcrypt
+LIBS     = -L/tmp/stubs -ltermcap -ldl -lrpcsvc -lbsd 
 
 INSTALL  = /usr/bin/install -c
 

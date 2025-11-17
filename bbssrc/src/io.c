@@ -39,7 +39,7 @@ extern int dumb_term;
 
 static char outbuf[OBUFSIZE];
 static int obufsize = 0;
-struct user_info uinfo;
+extern struct user_info uinfo;
 
 char    inbuf[IBUFSIZE];
 int     ibufsize = 0;
@@ -237,7 +237,7 @@ igetch()
 	igetnext:
 
 			uinfo.idle_time = time(0);
-			update_utmp();	/* 应该是需要 update 一下 :X */
+			update_utmp();	/* 应锟斤拷锟斤拷锟斤拷要 update 一锟斤拷 :X */
 
 			FD_ZERO(rx);
 			FD_SET(0, rx);

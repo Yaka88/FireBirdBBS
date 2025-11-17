@@ -7,10 +7,10 @@
 VERSION		= 0.50beta-5F
 NCMVERSION	= NoCeM_0.63
 
-ADMINUSER = SYSOP.bbs@yaka.yi.org
+ADMINUSER = SYSOP.bbs@bbs.firebird.local
 BBSHOME = /home/bbs
-BBSHOST = yaka.yi.org
-BBS_SRC = /home/bbs/bbssrc
+BBSHOST = bbs.firebird.local
+BBS_SRC = /home/runner/work/FireBirdBBS/FireBirdBBS/bbssrc
 PERL	= /usr/bin/perl
 
 LANG = BIG5
@@ -133,7 +133,7 @@ target: $(EXES) bbsname
 
 bbsname:
 	rm -fr bbsname.bbs hisconvert
-	echo 'yaka' > bbsname.bbs
+	echo 'FireBirdBBS' > bbsname.bbs
 	sed -e "s:@PERL@:$(PERL):" hisconvert.in > hisconvert
 
 r_port.o: r_port.c

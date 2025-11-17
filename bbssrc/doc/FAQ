@@ -1,0 +1,98 @@
+$Id: FAQ,v 1.2 2000/02/15 14:51:32 biboman Exp $
+
+	本 FAQ 收录网路上重复出现率高的问题，并将不时更新。如果 FAQ 有写错
+	或您觉得有更好的说明方式，请寄信到：biboman.bbs@bbs.seed.net.tw。
+
+    Q: 如何增加 pty 个数到 256 个？
+
+    A: 如果你用 Solaris 不必理会这个问题，Linux 似乎也不必(目前不确定)。
+       如果你用 FreeBSD，请修改你的 kernel config 档案，搜寻 pty 这字串，找
+       到後，请把後面的数字(预设是 16)改成 256，然後重新 make kernel，并到
+       /dev 下执行：
+
+	# /dev/MAKEDEV pty0 pty1 pty2 pty3 pty4 pty5 pty6 pty7
+
+       上述两个步骤做好後重开机即可。
+
+
+    Q: 什麽是 bbsrf、standalone telnetd、in.zbbsd、与 bbsd？
+
+    A: 早期要安装 bbs 时，需将 bbs 的 shell 改成 bbsrf，由 bbsrf 来呼叫 bbs
+       bbs 主程式；而 standalone telnetd 则是配合 bbsrf，用来取代系统原本的
+       telnetd，这样登入 bbs 时就不会看到系统的 login 提示，省去输入 bbs 帐
+       号这道手续，对系统安全亦有提升。後来 in.zbbsd 发展出来，取代 stand-
+       alone telnetd 与 bbsrf 的功能，bbs 帐号的 shell 不必设定成 bbsrf，提
+       升速度，也改善安全问题(bbsrf 需 set root uid)。bbsd 则跟 in.zbbsd 一
+       样取代 bbsrf、standalone telnetd，但是不会用到 tty 来做 I/O，速度又
+       更快了。使用 bbsd，您就无须理会上面提到增加 tty 到 256 的问题，您可
+       以任意设定同时上线人数到数百甚至数千，唯一要注意的是您的硬体是否能够
+       负荷。
+       
+
+    Q: 不知道为什麽，进站到好友列表就挂掉了？
+
+    A: 目前最有可能发生这种问题的就是活动看板了，预设的活动看板总行数是 80
+       行，若一个活动看板占了七行，则最多可放 11 个活动看板，超过了就会在进
+       站时当住不动。当您遇到这个问题後，请依以下步骤解决：
+
+       一、以 bbs 身分登入系统
+
+       二、备份 ~bbs/boards/notepad/.DIGEST
+
+       三、砍掉 ~bbs/boards/notepad/.DIGEST
+
+       四、进站重新设定活动看板
+
+       若要增加活动看板的总行数或是宽度，请修改 bbssrc/include/bbs.h 中的
+       ACBOARD_MAXLINE 以及 ACBOARD_BUFSIZE 这两个设定。
+
+
+    Q: 灌好 BBS，隔天会无法进站，过了几分钟後就好了，这是什麽问题？
+
+    A: account 程式会读取 ~bbs/usies，然後做出图表(countusr)，以供 bbs 主程
+       式读取。晚上十二点後，countusr 被更名成 countusr.last，或是长时间没
+       人上站，就会造成无法进站，请等个几分钟，或修改 crontab，把 mv 指令改
+       成 cp 即可解决。往後的 SNAP 将会更新这个问题。
+
+
+    Q: 使用 Red Hat 6.x 安装 Firebird 3.0，在 configure 时出现以下讯息怎麽
+       办：
+
+	checking for -ltermcap ... no
+	ERR: i can't compile without libtermcap !!
+
+    A: 请执行 Red Hat 6.x 的安装程式，选择 Update，然後仔细找出 termcap 的
+       选项，安装之，然後再安装 bbs。
+
+
+    Q: 当超过 256 人时，用 bbs 进系统时，出现 fork: Resource temporarily 
+       unavailable 且 cron 的内容都不跑了，我该怎麽让我的 BBS 能正常地超过
+       256 人呢？( JESUS.bbs@bbs.nknu.edu.tw、Biboman 提供)
+
+    A: FreeBSD：
+	  如果是 FreeBSD，请修改 Kernel 设定档的 maxusers，算法是 
+	  maxusers * 16 + 20，并重新 make kernel。
+
+       Linux：
+	  /usr/src/linux/include/linux/tasks.h 里
+
+	#define NR_TASKS        2048
+	/* On x86 Max 4092, or 4090 w/APM configured. *
+	#define MAX_TASKS_PER_USER (NR_TASKS/2)
+	#define MIN_TASKS_LEFT_FOR_ROOT 4
+	这边可以改最大 proccess数...
+
+	还有这个档limits.h
+	#define OPEN_MAX        1024    /* # open files a process may have */
+	最大开启档案数...
+
+
+    Q: 如果要改中英文的站名 及 Origin 的话，要在哪几个设定档改？
+
+       若需重新compiler程式的话，会不会影响board上文章及user的mail？
+
+    A: 到 bbssrc (or fb3src for CVS users) 目录下，重新 configure 一次，然
+       後 make clean update，然後重跑 bbsd。
+
+       注意！板上的旧文章及使用者信件不会改动，新 post 的文章下面的 origin
+       才会显示新的站名。

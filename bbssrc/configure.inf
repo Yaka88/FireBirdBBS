@@ -1,0 +1,11 @@
+######################################################
+This file is generate by configure $Revision: 1.4 $
+######################################################
+PERL=/usr/bin/perl
+BBS_ID=yaka
+DOMAIN=yaka.yi.org
+CNAME=ÐÂÏªÁ÷·¼Õ¾
+DEFAULTBD=sysop
+BUILD_PLATFORM=linux
+LIBCRYPT=DES
+RELDATE=20000220-SNAP

@@ -1,0 +1,60 @@
+$Id: Quick_Install,v 1.2 2000/02/21 14:03:49 biboman Exp $
+
+    本文件是 Firebird 3.0 的快速安装指南，如果您急著安装 BBS，可以依照本
+    文件的说明一步一步操作，即可快速安装好 BBS。但仍建议您查阅本目录下的
+    Firebird-30 以获得更多资讯。
+
+    以下开始安装步骤：
+
+    1.在 /etc/group 中加入 bbs 的群组，设定如下：
+        bbs:*:99:bbs
+
+
+    2.建立一个新帐号，依序如下：
+        bbs:*:9999:99:BBS user:/home/bbs:/bin/sh
+
+
+    3.基於安全理由，请将 bbs 这个帐号加入在 /etc/ftpusers 中，以避免有心人透过
+      ftp 漏洞取得 bbs 的资料。不过较好的方式是不要在您的 bbs 站上开启 ftp 
+      服务，除非您有非开 ftp 不可的理由。
+
+
+    4.以 root 的身份依序执行下列命令：
+        # cd /home
+        # tar zxvf FirebirdBBS3.0.tar.gz
+	# chown -R bbs:bbs /home/bbs
+
+
+    5.以 bbs 帐号 login，在 /home/bbs/bbssrc 下执行：
+
+        % ./configure
+        % make
+
+
+    7.以 root 身份执行下列步骤：
+        # cd /home/bbs/bbssrc
+        # make install
+
+
+    8.拿掉系统原有的 telnetd(这部分请自行参考作业系统设定)，然後执行：
+	# /home/bbs/bin/bbsd 23
+
+      然後 telnet localhost。
+
+
+    9.顺利的话，您将会看到 BBS 的欢迎画面，这时请输入 new 建立 SYSOP 的帐
+      号。请注意！SYSOP 五个字母都要大写。建立好帐号进站後，SYSOP 将会取
+      得 BBS 系统所有的权限。
+
+
+    10.假如您要别人不用注册就能参观您的站台，请用 new 建立 guest 帐号，
+       如果您不想有 geust 帐号，请在/home/bbs/.badname 中加入 guest。
+
+
+    11.最後，您可以选择性的安装 /home/bbssrc/util 下的程式，请阅读各目录的
+       00README 後再安装。您也可以到我们的 Official Site 查看是否有新的外
+       挂程式，我们的站台是：
+
+       http://www.firebird.org.tw/
+       ftp://ftp.firebird.org.tw/pub/Firdbrd/
+       ftp://ftp2.firebird.org.tw/pub/Firebird3.0_BBS/

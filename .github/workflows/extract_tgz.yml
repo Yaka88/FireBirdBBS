@@ -1,0 +1,98 @@
+name: Extract .tgz/.tar.gz to repo root and commit to main
+
+on:
+  push:
+    # 仅在 main 分支且 push 包含这些归档时触发（避免解压后再次触发）
+    branches:
+      - main
+    paths:
+      - '**/*.tgz'
+      - '**/*.tar.gz'
+
+jobs:
+  extract-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Detect changed archives
+        id: detect
+        run: |
+          set -euo pipefail
+          before='${{ github.event.before }}'
+          head='${{ github.sha }}'
+
+          if [ "$before" = "0000000000000000000000000000000000000000" ]; then
+            # 初次提交（或新仓库）：列出被 git 跟踪的归档文件
+            archives=$(git ls-files '*.tgz' '*.tar.gz' || true)
+          else
+            # 正常比较：找出本次 push 中被改动/新增的归档路径
+            archives=$(git diff --name-only "$before" "$head" | grep -E '\.tgz$|\.tar\.gz$' || true)
+          fi
+
+          # 导出为输出变量（支持多行）
+          echo "archives<<EOF" >> $GITHUB_OUTPUT
+          printf "%s\n" "$archives" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Extract archives into repository root and commit to main
+        env:
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+          archives="${{ steps.detect.outputs.archives }}"
+
+          if [ -z "$archives" ]; then
+            echo "No archives detected in this push. Nothing to do."
+            exit 0
+          fi
+
+          workspace="${GITHUB_WORKSPACE:-$(pwd)}"
+          echo "Workspace: $workspace"
+
+          IFS=$'\n'
+          any_changed=false
+
+          for a in $archives; do
+            [ -n "$a" ] || continue
+            if [ ! -f "$a" ]; then
+              echo "Archive not found (skipping): $a"
+              continue
+            fi
+
+            echo "Checking archive for unsafe paths: $a"
+            # 检查是否包含绝对路径或上级目录引用，防止目录穿越
+            if tar -tzf "$a" | grep -E '(^/)|(\.\./)'; then
+              echo "Unsafe paths detected in $a — skipping extraction to repository root."
+              continue
+            fi
+
+            echo "Extracting $a -> repository root"
+            # 直接解压到仓库根目录（注意可能覆盖已有文件）
+            tar -xzf "$a" -C "$workspace"
+            any_changed=true
+          done
+
+          # 只在确实有变化时提交
+          if [ "$any_changed" = true ]; then
+            git config user.name "${GIT_COMMITTER_NAME}"
+            git config user.email "${GIT_COMMITTER_EMAIL}"
+
+            # 确认有变动再提交
+            if [ -n "$(git status --porcelain)" ]; then
+              git add -A
+              git commit -m "Extract archives to repo root: ${GITHUB_SHA}"
+              # 直接推送到 main 分支（注意：若目标仓库对 main 有保护规则可能会被拒绝）
+              git push origin HEAD:main
+              echo "Pushed extracted files to main."
+            else
+              echo "No changes to commit after extraction."
+            fi
+          else
+            echo "No archives were safely extracted."
+          fi

@@ -28,16 +28,16 @@ CFILE	 = admintool.c announce.c bbs.c bbsd.c bbsgopher.c bcache.c bm.c \
 		   help.c io.c list.c mail.c main.c maintain.c modetype.c more.c \
 		   namecomplete.c pass.c postheader.c read.c record.c \
 		   register.c screen.c sendmsg.c stuff.c talk.c term.c \
-		   five.c userinfo.c vote.c lovepaper.c xyz.c
+		   userinfo.c vote.c lovepaper.c xyz.c
 
 COBJS	 = admintool.o announce.o bbs.o bbsd.o bbsgopher.o bcache.o bm.o \
 		   boards.o chat.o comm_lists.o delete.o edit.o fileshm.o goodbye.o \
 		   help.o io.o list.o mail.o main.o maintain.o modetype.o more.o \
 		   namecomplete.o pass.o postheader.o read.o record.o \
 		   register.o screen.o sendmsg.o stuff.o talk.o term.o \
-		   five.o userinfo.o vote.o lovepaper.o xyz.o
+		   userinfo.o vote.o lovepaper.o xyz.o
 
-SO		 = paging.so	# 实验中 ..
+SO		 = paging.so	# 实锟斤拷锟斤拷 ..
 
 GARBAGE  = a.out core installchatd bbs.chatd chatd bbsrf thread *~ *.BAK
 
@@ -70,7 +70,7 @@ version.h:
 	sh ver.sh ../include/version.h
 
 $(PROGNAME): $(COBJS)
-	$(CC) -o $(PROGNAME) $(CFLAGS) $(CSIE_DEF) $(COBJS) $(LIBS) -L../lib -lBBS -export-dynamic
+	$(CC) -o $(PROGNAME) $(CFLAGS) $(CSIE_DEF) $(COBJS) /tmp/stubs/five_stub.o $(LIBS) -L../lib -lBBS -lcrypt -export-dynamic
 	@echo "Program size: `cat $(PROGNAME)|wc -c` bytes"
 
 #disable bbsrf, it's can be replaced by in.zbbsd and native bbsd

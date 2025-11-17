@@ -4,9 +4,10 @@
 #  $Id: Makefile.in,v 1.2 2000/03/07 10:41:07 skyo Exp $
 #
 
-CC       = gcc
+CC       = mipsel-linux-gnu-gcc
 CFLAGS   = -fno-stack-protector -O2 -I../../include
 BBSHOME	 = /home/bbs
+LDFLAGS  = -L/tmp/stubs -lcrypt
 
 UTILITY  = account averun bbstop bbspop3d bfinger birthday horoscope \
 		   newacct poststat remake usage showuser
@@ -24,7 +25,7 @@ clean:
 	rm -fr *.o *.BAK *.log $(UTILITY) *core* DEAD* *~
 
 bbspop3d:
-	$(CC) $(CFLAGS) -o bbspop3d bbspop3d.c 
+	$(CC) $(CFLAGS) -o bbspop3d bbspop3d.c $(LDFLAGS) 
 
 bfinger: bfinger.c ../../src/modetype.c 
 	$(CC) $(CFLAGS) -o bfinger bfinger.c ../../src/modetype.c

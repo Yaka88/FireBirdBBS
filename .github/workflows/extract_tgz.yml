@@ -1,99 +1,80 @@
-name: Extract .tgz/.tar.gz and open PR
+# 注意：这个 workflow 会把仓库中的 .tgz 文件解压并直接提交到 main 分支（不会创建 PR）。
+# 使用前请确保 main 分支没有强制的保护规则阻止 workflow 用 GITHUB_TOKEN 推送（或准备一个有权限的 personal access token）。
+# 触发方式：手动（workflow_dispatch）。如果你想自动触发可以改 triggers。
+on:
+  workflow_dispatch: {}
 
-# 给 workflow 写权限以便创建 PR / 提交变更
 permissions:
   contents: write
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - '**/*.tgz'
-      - '**/*.tar.gz'
-
 jobs:
-  extract-and-pr:
+  extract-and-commit:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: true
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: true
+        fetch-depth: 0
 
-      - name: Detect changed archives
-        id: detect
-        run: |
-          set -euo pipefail
-          before='${{ github.event.before }}'
-          head='${{ github.sha }}'
+    - name: Set up git user
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          if [ "$before" = "0000000000000000000000000000000000000000" ]; then
-            archives=$(git ls-files '*.tgz' '*.tar.gz' || true)
-          else
-            archives=$(git diff --name-only "$before" "$head" | grep -E '\.tgz$|\.tar\.gz$' || true)
-          fi
+    - name: Find and extract .tgz files into repo root
+      env:
+        TARGET_BRANCH: main
+      run: |
+        set -euo pipefail
 
-          # 导出多行输出
-          echo "archives<<EOF" >> $GITHUB_OUTPUT
-          printf "%s\n" "$archives" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+        # 收集所有仓库内的 .tgz 文件（受 git 管理的文件）
+        mapfile -d $'\0' TGZ_FILES < <(git ls-files -z -- '*.tgz' || true)
 
-      - name: Extract archives safely into repo root
-        id: extract
-        run: |
-          set -euo pipefail
-          archives="${{ steps.detect.outputs.archives }}"
+        if [ "${#TGZ_FILES[@]}" -eq 0 ]; then
+          echo "No .tgz files tracked by git found. Exiting."
+          exit 0
+        fi
 
-          if [ -z "$archives" ]; then
-            echo "No archives detected."
-            exit 0
-          fi
+        TMPDIR=$(mktemp -d)
+        echo "Using temp dir: $TMPDIR"
 
-          workspace="${GITHUB_WORKSPACE:-$(pwd)}"
-          echo "Workspace: $workspace"
+        # 为每个 .tgz 建个子目录解压，避免归档内的绝对路径或 ../ 问题直接写回仓库根
+        for tgz in "${TGZ_FILES[@]}"; do
+          base=$(basename "$tgz" .tgz)
+          subdir="$TMPDIR/$base"
+          mkdir -p "$subdir"
+          echo "Extracting $tgz -> $subdir"
+          # -x : extract, -z : gzip, -f : file
+          tar -xzf "$tgz" -C "$subdir"
+        done
 
-          IFS=$'\n'
-          any=false
-          for a in $archives; do
-            [ -n "$a" ] || continue
-            if [ ! -f "$a" ]; then
-              echo "Archive not found (skipping): $a"
-              continue
-            fi
+        # 将解压出的内容合并回仓库根（覆盖同名文件）
+        # 排除 .git 目录以防万一
+        echo "Merging extracted content into repository root..."
+        # 保留隐藏文件（dotfiles）
+        shopt -s dotglob || true
+        for d in "$TMPDIR"/*; do
+          echo "Merging from $d"
+          rsync -a --exclude='.git' "$d"/ .
+        done
 
-            echo "Checking $a for unsafe paths..."
-            if tar -tzf "$a" | grep -E '(^/)|(\.\./)'; then
-              echo "Unsafe paths detected in $a — skipping extraction to repo root."
-              continue
-            fi
+        # 清理
+        rm -rf "$TMPDIR"
 
-            echo "Extracting $a -> $workspace"
-            tar -xzf "$a" -C "$workspace"
-            any=true
-          done
+    - name: Commit and push changes to main
+      env:
+        TARGET_BRANCH: main
+      run: |
+        set -euo pipefail
 
-          if [ "$any" = true ]; then
-            echo "Extraction done. Uncommitted changes present."
-          else
-            echo "No safe archives were extracted."
-          fi
-
-      - name: Create Pull Request with extracted files
-        # 这个 action 会把工作区里未提交的变更提交到新分支并创建 PR
-        uses: peter-evans/create-pull-request@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: Extract archives:${{ steps.detect.outputs.archives }}
-          branch: extract/${{ github.run_id }}
-          title: 'Automated: Extract uploaded archive(s)'
-          body: |
-            This PR was opened automatically by a workflow that detected and extracted uploaded .tgz/.tar.gz archive(s):
-            ${{ steps.detect.outputs.archives }}
-
-            Please review the extracted files before merging.
-          base: main
-          labels: automated,extract
-          draft: false
+        # 如果没有改动则退出
+        if git status --porcelain | grep . >/dev/null; then
+          git add -A
+          git commit -m "ci: extract .tgz archives into repository root (by workflow)"
+          # 直接推到 main 分支。确保 action 有推送权限或 branch protection 允许此操作。
+          git push origin HEAD:refs/heads/${TARGET_BRANCH}
+          echo "Pushed extracted files to branch ${TARGET_BRANCH}."
+        else
+          echo "No changes to commit."
+        fi

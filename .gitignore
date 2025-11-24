@@ -1,0 +1,60 @@
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Build directories
+/tmp/
+build/
+dist/
+
+# BBS specific builds (keep only final binaries in mipsel-binaries/)
+bbssrc/src/*.o
+bbssrc/lib/libBBS/*.o
+bbssrc/lib/libBBS.a
+
+# Keep these final binaries
+!mipsel-binaries/bin/*
+!mipsel-binaries.tar.gz
+
+# Editor and IDE files
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
+*.BAK
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Version control
+.git/

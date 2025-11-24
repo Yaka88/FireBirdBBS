@@ -1,60 +1,56 @@
-# Object files
+# Build artifacts
 *.o
-*.ko
-*.obj
-*.elf
-
-# Libraries
-*.lib
 *.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
 *.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
-
-# Build directories
-/tmp/
-build/
-dist/
-
-# BBS specific builds (keep only final binaries in mipsel-binaries/)
-bbssrc/src/*.o
-bbssrc/lib/libBBS/*.o
-bbssrc/lib/libBBS.a
-
-# Keep these final binaries
-!mipsel-binaries/bin/*
-!mipsel-binaries.tar.gz
-
-# Editor and IDE files
+*.BAK
 *~
-*.swp
-*.swo
+core
+a.out
+
+# Specific build directories and files
+bbssrc/src/bbsd
+bbssrc/src/chatd
+bbssrc/src/thread
+bbssrc/src/expire
+bbssrc/src/paging.so
+bbssrc/include/version.h
+
+# Utility binaries
+bbssrc/util/*/deljunk
+bbssrc/util/*/expressd
+bbssrc/util/*/fingerd
+bbssrc/util/*/gopherd
+bbssrc/util/*/in.zbbsd
+bbssrc/util/*/innbbsd
+bbssrc/util/*/makedbz
+bbssrc/util/*/mkhistory
+bbssrc/util/*/dbzserver
+bbssrc/util/*/bbsnnrp
+bbssrc/util/*/ctlinnbbsd
+bbssrc/util/*/bbslink
+bbssrc/util/*/bbspost
+bbssrc/util/*/dbz_query_sample
+bbssrc/util/local_utl/account
+bbssrc/util/local_utl/averun
+bbssrc/util/local_utl/bbstop
+bbssrc/util/local_utl/birthday
+bbssrc/util/local_utl/horoscope
+bbssrc/util/local_utl/newacct
+bbssrc/util/local_utl/poststat
+bbssrc/util/local_utl/showuser
+bbssrc/util/local_utl/bbspop3d
+bbssrc/util/local_utl/bfinger
+bbssrc/util/local_utl/remake
+bbssrc/util/local_utl/usage
+bbssrc/util/mail2bbs/mail2bbs
+
+# Temporary files
+/tmp/
+*.tmp
+*.log
+
+# IDE and editor files
 .vscode/
 .idea/
-*.BAK
-
-# OS specific
-.DS_Store
-Thumbs.db
-
-# Version control
-.git/
+*.swp
+*.swo

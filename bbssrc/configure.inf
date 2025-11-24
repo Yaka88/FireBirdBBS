@@ -3,8 +3,8 @@ This file is generate by configure $Revision: 1.4 $
 ######################################################
 PERL=/usr/bin/perl
 BBS_ID=yaka
-DOMAIN=yaka.yi.org
-CNAME=ĞÂÏªÁ÷·¼Õ¾
+DOMAIN=bbs.bluelaser.cn
+CNAME=é¦¨æºªæµèŠ³
 DEFAULTBD=sysop
 BUILD_PLATFORM=linux
 LIBCRYPT=DES

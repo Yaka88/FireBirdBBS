@@ -3,7 +3,7 @@
 
 #ifndef BBS
   #include <dlfcn.h>
-  #include <varargs.h>
+  #include <string.h>
   #include <strings.h>
   #include <stdlib.h>
   #include <stdio.h>

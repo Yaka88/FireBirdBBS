@@ -89,7 +89,7 @@ log_close()
 #if 0
 
 /* ----------------------------------------------------- */
-/* È¡µÃ remote user name ÒÔÅÐ¶¨Éí·Ý                      */
+/* È¡ï¿½ï¿½ remote user name ï¿½ï¿½ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½                      */
 /* ----------------------------------------------------- */
 
 /*
@@ -730,7 +730,7 @@ main()
     {
       if (errno == EINTR)
         continue;
-      logit("select", sys_errlist[errno]);
+      logit("select", strerror(errno));
       exit(-1);
     }
 

@@ -1,0 +1,56 @@
+# Build artifacts
+*.o
+*.a
+*.so
+*.BAK
+*~
+core
+a.out
+
+# Specific build directories and files
+bbssrc/src/bbsd
+bbssrc/src/chatd
+bbssrc/src/thread
+bbssrc/src/expire
+bbssrc/src/paging.so
+bbssrc/include/version.h
+
+# Utility binaries
+bbssrc/util/*/deljunk
+bbssrc/util/*/expressd
+bbssrc/util/*/fingerd
+bbssrc/util/*/gopherd
+bbssrc/util/*/in.zbbsd
+bbssrc/util/*/innbbsd
+bbssrc/util/*/makedbz
+bbssrc/util/*/mkhistory
+bbssrc/util/*/dbzserver
+bbssrc/util/*/bbsnnrp
+bbssrc/util/*/ctlinnbbsd
+bbssrc/util/*/bbslink
+bbssrc/util/*/bbspost
+bbssrc/util/*/dbz_query_sample
+bbssrc/util/local_utl/account
+bbssrc/util/local_utl/averun
+bbssrc/util/local_utl/bbstop
+bbssrc/util/local_utl/birthday
+bbssrc/util/local_utl/horoscope
+bbssrc/util/local_utl/newacct
+bbssrc/util/local_utl/poststat
+bbssrc/util/local_utl/showuser
+bbssrc/util/local_utl/bbspop3d
+bbssrc/util/local_utl/bfinger
+bbssrc/util/local_utl/remake
+bbssrc/util/local_utl/usage
+bbssrc/util/mail2bbs/mail2bbs
+
+# Temporary files
+/tmp/
+*.tmp
+*.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo

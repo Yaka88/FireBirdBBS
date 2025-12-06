@@ -29,6 +29,9 @@ $Id: bbs.h,v 1.4 2000/02/14 06:05:50 edwardc Exp $
 #ifndef  _BBS_H_
 #define _BBS_H_
 
+/* Force 32-bit time_t for x86-32 compatibility - MUST be first */
+#include "time32_compat.h"
+
 #ifndef BBSIRC
 
 /* Global includes, needed in most every source file... */

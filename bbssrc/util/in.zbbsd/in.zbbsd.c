@@ -25,6 +25,9 @@ CVS: $Id: in.zbbsd.c,v 1.1 2000/01/15 01:45:33 edwardc Exp $
 $Source: /usr/home/CVS/fb3src/bbssrc/util/in.zbbsd/in.zbbsd.c,v $
 */
 
+/* Force 32-bit time_t - MUST be first */
+#include "time32_compat.h"
+
 #include "config.h"
 
 #define PASSWD "Firebird BBS 3.0 zbbsd [ready]"

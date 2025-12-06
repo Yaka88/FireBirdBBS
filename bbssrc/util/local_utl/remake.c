@@ -1,3 +1,6 @@
+/* Force 32-bit time_t - MUST be first */
+#include "time32_compat.h"
+
 #include        <stdio.h>
 #include        <sys/types.h>
 #include        <sys/stat.h>
@@ -56,7 +59,7 @@ char   *path, *file;
 	fh.level = 0;
 	memset(&fh.accessed, 0, sizeof(fh.accessed));
 	while (fgets(buf, 256, fp) != NULL) {
-		if (strstr(buf, "╥╒пехк: ") || strstr(buf, "вВ  уъ: ") || strstr(buf, "╪дпехк: ")) {
+		if (strstr(buf, "О©╫О©╫О©╫О©╫О©╫О©╫: ") || strstr(buf, "О©╫О©╫  О©╫О©╫: ") || strstr(buf, "О©╫О©╫О©╫О©╫О©╫О©╫: ")) {
 			ptr = &buf[8];
 			ptr2 = strchr(ptr, ' ');
 			if (ptr2 != NULL) {
@@ -73,7 +76,7 @@ char   *path, *file;
 			strncpy(fh.owner, ptr, sizeof(fh.owner));
 			step = 1;
 		}
-		if (strstr(buf, "╠Й  лБ: ") || strstr(buf, "лБ  д©: ")) {
+		if (strstr(buf, "О©╫О©╫  О©╫О©╫: ") || strstr(buf, "О©╫О©╫  д©: ")) {
 			ptr = &buf[8];
 			ptr[strlen(ptr) - 1] = 0;
 			strncpy(fh.title, ptr, sizeof(fh.title));
@@ -144,7 +147,7 @@ char   *pathname;
 	char    buf[80];
 	struct dirent *dirp;
 	int     all = 0, done = 0;
-	printf("1. ╫ЬхКд©б╪ %s\n", pathname);
+	printf("1. О©╫О©╫О©╫О©╫д©б╪ %s\n", pathname);
 	if ((dp = opendir(pathname)) == NULL) {
 		printf("OpenDir error for %s\n", pathname);
 		return;
@@ -152,15 +155,15 @@ char   *pathname;
 	sprintf(control, "%s/.DIR", pathname);
 	sprintf(buf, "%s.bak", control);
 	rename(control, buf);
-	printf("2. уШюМндубё╛╫╗а╒ .DIR\n");
+	printf("2. О©╫О©╫О©╫О©╫О©╫О©╫О©╫бёО©╫О©╫О©╫О©╫О©╫ .DIR\n");
 	while ((dirp = readdir(dp)) != NULL) {
 		if (!strcmp(dirp->d_name, ".") || !strcmp(dirp->d_name, "..") || dirp->d_name[0] != 'M')
 			continue;
 		done += do_remake(pathname, dirp->d_name);
 		all++;
 	}
-	printf("3. еепРндуб\n");
+	printf("3. О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫\n");
 	do_sort(pathname);
-	printf("%d ф╙ндубжь╫╗ё╛%d ндубй╖╟эё╛ря╬╜и╬ЁЩ\n", done, all - done);
+	printf("%d ф╙О©╫О©╫О©╫О©╫О©╫ь╫О©╫О©╫О©╫%d О©╫О©╫О©╫О©╫й╖О©╫эёО©╫О©╫я╬О©╫и╬О©╫О©╫\n", done, all - done);
 	chown(control, 9999, 99);
 }

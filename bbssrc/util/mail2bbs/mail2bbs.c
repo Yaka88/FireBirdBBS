@@ -4,6 +4,9 @@
  * $Id: mail2bbs.c,v 1.3 2000/01/20 14:10:50 edwardc Exp $
  */
 
+/* Force 32-bit time_t - MUST be first */
+#include "time32_compat.h"
+
 #include "bbs.h"
 #include "mail2bbs.h"
 #include <sys/ipc.h>

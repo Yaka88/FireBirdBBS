@@ -1,3 +1,6 @@
+/* Force 32-bit time_t - MUST be first */
+#include "time32_compat.h"
+
 /* account.c  -- count for no. of logins */
 /* $Id: account.c,v 1.1 2000/01/15 01:45:39 edwardc Exp $ */
 

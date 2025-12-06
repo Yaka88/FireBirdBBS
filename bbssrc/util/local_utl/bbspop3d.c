@@ -14,6 +14,9 @@
 */
 /* $Id: bbspop3d.c,v 1.2 2000/02/11 01:47:52 skyo Exp $ */
 
+/* Force 32-bit time_t - MUST be first */
+#include "time32_compat.h"
+
 #include <sys/ioctl.h>
 #include "bbs.h" 
 

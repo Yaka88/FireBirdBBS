@@ -30,6 +30,9 @@
  * CVS: $Id: gopherd.c,v 1.1 2000/01/15 01:45:33 edwardc Exp $
  */
 
+/* Force 32-bit time_t - MUST be first */
+#include "time32_compat.h"
+
 #include "bbs.h"
 #include "config.h"
 
@@ -89,7 +92,7 @@ log_close()
 #if 0
 
 /* ----------------------------------------------------- */
-/* È¡µÃ remote user name ÒÔÅÐ¶¨Éí·Ý                      */
+/* È¡ï¿½ï¿½ remote user name ï¿½ï¿½ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½                      */
 /* ----------------------------------------------------- */
 
 /*
@@ -730,7 +733,7 @@ main()
     {
       if (errno == EINTR)
         continue;
-      logit("select", sys_errlist[errno]);
+      logit("select", strerror(errno));
       exit(-1);
     }
 

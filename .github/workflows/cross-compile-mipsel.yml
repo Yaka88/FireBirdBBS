@@ -1,0 +1,170 @@
+name: Cross-Compile to MIPS32 Little Endian
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-mipsel:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Install cross-compilation toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-mipsel-linux-gnu g++-mipsel-linux-gnu crossbuild-essential-mipsel
+        
+    - name: Verify toolchain installation
+      run: |
+        mipsel-linux-gnu-gcc --version
+        mipsel-linux-gnu-ar --version
+        
+    - name: Build library stubs for missing dependencies
+      run: |
+        cat > /tmp/stubs.c << 'EOF'
+        /* Minimal stubs for missing termcap and crypt functions */
+        #include <stdio.h>
+        #include <string.h>
+        #include <stdlib.h>
+
+        /* termcap stubs */
+        char PC = 0;
+        char *UP = NULL;
+        char *BC = NULL;
+        short ospeed = 0;
+
+        int tgetent(char *bp, const char *name) { return 1; }
+        int tgetnum(const char *id) { return -1; }
+        int tgetflag(const char *id) { return 0; }
+        char *tgetstr(const char *id, char **area) {
+            static char buf[64] = "";
+            if (area && *area) { char *ret = *area; *area += 1; return ret; }
+            return buf;
+        }
+        char *tgoto(const char *cap, int col, int row) {
+            static char buf[32];
+            snprintf(buf, sizeof(buf), "\033[%d;%dH", row + 1, col + 1);
+            return buf;
+        }
+        int tputs(const char *str, int affcnt, int (*putc)(int)) {
+            if (str) { while (*str) { putc(*str++); } }
+            return 0;
+        }
+
+        /* crypt stubs - NOT SECURE! Replace with real libcrypt for production */
+        char *crypt(const char *key, const char *salt) {
+            static char result[14];
+            snprintf(result, sizeof(result), "XX%.10s", key);
+            return result;
+        }
+        char *crypt_r(const char *key, const char *salt, void *data) {
+            return crypt(key, salt);
+        }
+        EOF
+        
+        mipsel-linux-gnu-gcc -fno-stack-protector -O2 -c /tmp/stubs.c -o /tmp/stubs.o
+        mipsel-linux-gnu-ar rcs /tmp/libstubs.a /tmp/stubs.o
+        ls -lh /tmp/libstubs.a
+        
+    - name: Build libBBS
+      run: |
+        cd bbssrc/lib/libBBS
+        make clean || true
+        make CC=mipsel-linux-gnu-gcc CFLAGS="-fno-stack-protector -static -O2 -Wunused" AR=mipsel-linux-gnu-ar RANLIB=mipsel-linux-gnu-ranlib
+        ls -lh ../libBBS.a
+        
+    - name: Generate version header
+      run: |
+        cd bbssrc/src
+        sh ver.sh ../include/version.h
+        
+    - name: Compile object files
+      run: |
+        cd bbssrc/src
+        export CC=mipsel-linux-gnu-gcc
+        export CFLAGS="-fno-stack-protector -O2 -I../include -DLINUX -DTERMIOS -DSHOW_IDLE_TIME -DWITHOUT_CHROOT -DHAVE_VERSION_H"
+        
+        # Compile most files
+        for src in announce.c bbsgopher.c bcache.c bm.c boards.c chat.c comm_lists.c delete.c edit.c fileshm.c goodbye.c help.c io.c list.c mail.c modetype.c more.c namecomplete.c pass.c postheader.c read.c record.c register.c screen.c sendmsg.c stuff.c talk.c term.c five.c userinfo.c vote.c lovepaper.c xyz.c; do
+          echo "Compiling ${src}..."
+          $CC $CFLAGS -c $src
+        done
+        
+        # Compile files with -fcommon to handle multiple definitions
+        for src in bbs.c bbsd.c main.c admintool.c maintain.c; do
+          echo "Compiling ${src} with -fcommon..."
+          $CC $CFLAGS -fcommon -c $src
+        done
+        
+        ls -lh *.o | wc -l
+        
+    - name: Link bbsd
+      run: |
+        cd bbssrc/src
+        mipsel-linux-gnu-gcc -o bbsd -static -fno-stack-protector \
+          admintool.o announce.o bbs.o bbsd.o bbsgopher.o bcache.o bm.o \
+          boards.o chat.o comm_lists.o delete.o edit.o fileshm.o goodbye.o \
+          help.o io.o list.o mail.o main.o maintain.o modetype.o more.o \
+          namecomplete.o pass.o postheader.o read.o record.o \
+          register.o screen.o sendmsg.o stuff.o talk.o term.o \
+          five.o userinfo.o vote.o lovepaper.o xyz.o \
+          -L../lib -lBBS /tmp/libstubs.a -lm -ldl
+        file bbsd
+        
+    - name: Build chatd
+      run: |
+        cd bbssrc/src
+        mipsel-linux-gnu-gcc -fno-stack-protector -static -O2 -I../include -DLINUX -DTERMIOS -o chatd station.c -L../lib -lBBS -lm -ldl /tmp/libstubs.a
+        file chatd
+        
+    - name: Build thread
+      run: |
+        cd bbssrc/src
+        mipsel-linux-gnu-gcc -fno-stack-protector -static -O2 -I../include -DLINUX -DTERMIOS -o thread record.c thread.c
+        file thread
+        
+    - name: Build expire
+      run: |
+        cd bbssrc/src
+        mipsel-linux-gnu-gcc -fno-stack-protector -static -O2 -I../include -DLINUX -DTERMIOS -o expire expire.c
+        file expire
+        
+    - name: Strip binaries
+      run: |
+        cd bbssrc/src
+        mipsel-linux-gnu-strip bbsd chatd thread expire
+        ls -lh bbsd chatd thread expire
+        
+    - name: Collect binaries
+      run: |
+        mkdir -p mipsel-binaries/bin
+        cp bbssrc/src/{bbsd,chatd,thread,expire} mipsel-binaries/bin/
+        ls -lh mipsel-binaries/bin/
+        
+    - name: Create archive
+      run: |
+        tar -czf mipsel-binaries.tar.gz mipsel-binaries/
+        ls -lh mipsel-binaries.tar.gz
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: mipsel-binaries
+        path: |
+          mipsel-binaries/
+          mipsel-binaries.tar.gz
+        retention-days: 90
+        
+    - name: Create release (on tag)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: mipsel-binaries.tar.gz
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

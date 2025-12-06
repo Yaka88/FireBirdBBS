@@ -16,6 +16,9 @@
 #define  FIRSTLOGIN
 #define  SHOW_IDLE_TIME
 
+/* Force 32-bit time_t - MUST be first */
+#include "time32_compat.h"
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>

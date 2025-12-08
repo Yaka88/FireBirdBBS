@@ -1,9 +1,9 @@
 /*
-    ¹¦ÄÜ     :  ÁĞ³öÕ¾ÄÚÊ¹ÓÃÕß×ÊÁÏ
-    ×¢ÒâÊÂÏî :  ĞëÒªÄ¿Ç°µÄ bbs.h
+    åŠŸèƒ½     :  åˆ—å‡ºç«™å†…ä½¿ç”¨è€…èµ„æ–™
+    æ³¨æ„äº‹é¡¹ :  é¡»è¦ç›®å‰çš„ bbs.h
     Compile  :  gcc -o showuser showuser.c
-    Ê¹ÓÃ·½Ê½ :  showuser ~bbs/.PASSWD i10 l5 e25
-                (ÁĞ³öÊ¹ÓÃÕßµÄ ID, login ´ÎÊı, email µØÖ·)
+    ä½¿ç”¨æ–¹å¼ :  showuser ~bbs/.PASSWD i10 l5 e25
+                (åˆ—å‡ºä½¿ç”¨è€…çš„ ID, login æ¬¡æ•°, email åœ°å€)
  */
 
 /* 
@@ -159,7 +159,7 @@ struct userec *p;
     
     sprintf( field_str[ i++ ], "%s", my_ctime(&p->firstlogin) );
     sprintf( field_str[ i++ ], "%d", p->firstlogin );
-    sprintf( field_str[ i++ ], "%s", p->termtype + 16 );
+    sprintf( field_str[ i++ ], "%s", p->reginfo );
     sprintf( field_str[ i++ ], "%s", p->ident );
 }
 

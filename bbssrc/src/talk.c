@@ -433,12 +433,11 @@ char    q_id[IDLEN + 2];
         prints("\n%s…œ¥Œ‘⁄ [[1;32m%s[m] ¥” [[1;32m%s[m] µΩ±æ’æ“ª”Œ°£\n",
                 ( HAS_DEFINE(lookupuser.userdefine, DEF_S_HOROSCOPE) ) ? buf : "", genbuf,
                 (lookupuser.lasthost[0] == '\0' ? "(≤ªœÍ)" : lookupuser.lasthost));
-        bbsd_log("–≈œ‰"); //add by yaka for test    
-        bbsd_log(cexp(exp)); //add by yaka for test  
-        prints("–≈œ‰£∫[[1;5;32m%2s[m]£¨æ≠—È÷µ£∫[[1;32m%d[m]([1;33m%s[m) ±Ìœ÷÷µ£∫[[1;32m%d[m]([1;33m%s[m) …˙√¸¡¶£∫[[1;32m%d[m]°£\n"
-                ,(check_query_mail(qry_mail_dir) == 1) ? "°—" : "  ", exp, cexp(exp), perf,cperf(perf),
+
+        prints("–≈œ‰£∫[[1;5;32m%2s[m]£¨æ≠—È÷µ£∫[[1;32m%d[m] ±Ìœ÷÷µ£∫[[1;32m%d[m]([1;33m%s[m) …˙√¸¡¶£∫[[1;32m%d[m]°£\n"
+                ,(check_query_mail(qry_mail_dir) == 1) ? "°—" : "  ", exp, perf,cperf(perf),
                 compute_user_value(&lookupuser));
-         bbsd_log(cperf(perf)); //add by yaka for test 
+
         t_search_ulist(&uin, t_cmpuids, tuid);
 //end
 
@@ -446,7 +445,6 @@ char    q_id[IDLEN + 2];
         if (HAS_PERM(PERM_SYSOP))
                 prints("’Ê µ–’√˚: %s \n", lookupuser.realname);
 #endif
-        bbsd_log("show_user_plan"); //add by yaka for test 
         show_user_plan(planid);
         if (uinfo.mode != LUSERS && uinfo.mode != LAUSERS && uinfo.mode != FRIEND && uinfo.mode != GMENU)
                 pressanykey();

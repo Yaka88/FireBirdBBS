@@ -1,9 +1,9 @@
 /*
-    功能     :  列出站内使用者资料
-    注意事项 :  须要目前的 bbs.h
+    ����     :  �г�վ��ʹ��������
+    ע������ :  ��ҪĿǰ�� bbs.h
     Compile  :  gcc -o showuser showuser.c
-    使用方式 :  showuser ~bbs/.PASSWD i10 l5 e25
-                (列出使用者的 ID, login 次数, email 地址)
+    ʹ�÷�ʽ :  showuser ~bbs/.PASSWD i10 l5 e25
+                (�г�ʹ���ߵ� ID, login ����, email ��ַ)
  */
 
 /* 

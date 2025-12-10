@@ -1,0 +1,96 @@
+name: Build FireBirdBBS for mipsle-32
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  TARGET_HOST: mipsel-linux-gnu
+  MIPS_CFLAGS: "-mips32 -mabi=32 -EL -fno-stack-protector -fcommon -O2 -U_TIME_BITS -U_FILE_OFFSET_BITS -D_FILE_OFFSET_BITS=32 -g"
+  PREFIX_DEPS: "${{ github.workspace }}/build-deps/install"
+  NCURSES_PREFIX: "${{ env.PREFIX_DEPS }}/usr/local"
+  CRYPT_PREFIX: "${{ env.PREFIX_DEPS }}/usr/local"
+  LIBBBS_PREFIX: "${{ github.workspace }}/bbssrc/lib"
+
+jobs:
+  cross-compile:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install tooling
+        run: |
+          sudo dpkg --add-architecture mipsel
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gcc-12-mipsel-linux-gnu g++-12-mipsel-linux-gnu \
+            make autoconf automake libtool pkg-config python3-pip git bison flex
+
+      - name: Build ncurses/termcap static libraries
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/ncurses
+          git clone --depth 1 https://git.savannah.gnu.org/git/ncurses.git /tmp/ncurses
+          pushd /tmp/ncurses
+          ./configure --host=${TARGET_HOST} --prefix=/usr/local \
+            --with-shared=no --with-static=yes --with-termlib \
+            --without-debug --without-tests --enable-overwrite
+          make -j$(nproc)
+          make install DESTDIR=${PREFIX_DEPS}
+          popd
+
+      - name: Build libxcrypt static library
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/libxcrypt
+          git clone --depth 1 https://github.com/besser82/libxcrypt.git /tmp/libxcrypt
+          pushd /tmp/libxcrypt
+          ./autogen.sh
+          ./configure --host=${TARGET_HOST} --prefix=/usr/local \
+            --disable-shared --enable-static --with-crypt-methods=all
+          make -j$(nproc)
+          make install DESTDIR=${PREFIX_DEPS}
+          popd
+
+      - name: Configure FireBirdBBS
+        working-directory: bbssrc
+        run: |
+          export CC=${TARGET_HOST}-gcc
+          export CXX=${TARGET_HOST}-g++
+          export AR=${TARGET_HOST}-ar
+          export RANLIB=${TARGET_HOST}-ranlib
+          export PKG_CONFIG_PATH=${PREFIX_DEPS}/usr/local/lib/pkgconfig
+          export CFLAGS="${MIPS_CFLAGS} -I${NCURSES_PREFIX}/include -I${CRYPT_PREFIX}/include"
+          export LDFLAGS="-static -L${NCURSES_PREFIX}/lib -L${CRYPT_PREFIX}/lib -L${LIBBBS_PREFIX}"
+          export LIBS="-ltermcap -lncurses -ltinfo -lcrypt -lBBS -ldl -lrpcsvc -lnsl -lbsd"
+          ./configure --host=${TARGET_HOST} --build=x86_64-pc-linux-gnu \
+            --disable-shared --enable-static --prefix=/opt/firebirdbbs
+
+      - name: Build libBBS in place
+        working-directory: bbssrc/lib
+        run: |
+          make cleanall || true
+          make all CC=${TARGET_HOST}-gcc CFLAGS="${MIPS_CFLAGS}" AR=${TARGET_HOST}-ar RANLIB=${TARGET_HOST}-ranlib
+
+      - name: Build main binaries
+        working-directory: bbssrc
+        run: |
+          make clean || true
+          make all CFLAGS="${MIPS_CFLAGS} -I${NCURSES_PREFIX}/include -I${CRYPT_PREFIX}/include" \
+            LDFLAGS="-static -L${NCURSES_PREFIX}/lib -L${CRYPT_PREFIX}/lib -L${LIBBBS_PREFIX}" \
+            CC=${TARGET_HOST}-gcc AR=${TARGET_HOST}-ar RANLIB=${TARGET_HOST}-ranlib
+
+      - name: Gather executables
+        run: |
+          mkdir -p artifacts
+          cd bbssrc
+          find . -maxdepth 1 -type f -executable -print > ../artifacts/executables.txt
+          tar -czvf ../artifacts/firebirdbbs-mipsle.tar.gz -T ../artifacts/executables.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firebirdbbs-mipsle
+          path: artifacts/firebirdbbs-mipsle.tar.gz

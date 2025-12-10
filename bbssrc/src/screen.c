@@ -27,7 +27,8 @@ $Id: screen.c,v 1.1 2000/01/15 01:45:29 edwardc Exp $
 #include "screen.h"
 #include "edit.h"
 #include <sys/param.h>
-#include <varargs.h>
+//#include <varargs.h>
+#include <stdarg.h>
 
 extern char clearbuf[];
 extern char cleolbuf[];
@@ -536,17 +537,13 @@ register int cc;
 
 
 int     dec[] = {1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1};
-
 void
-prints(va_alist)
-va_dcl
+prints(const char *fmt, ...)
 {
-	va_list ap;
-	register char *fmt;
-	char   *bp;
-	register int i, count, hd, indx;
-	va_start(ap);
-	fmt = va_arg(ap, char *);
+    va_list ap;
+    register char *bp;
+    register int i, count, hd, indx;
+    va_start(ap, fmt); 
 	while (*fmt != '\0') {
 		if (*fmt == '%') {
 			int     sgn = 1;

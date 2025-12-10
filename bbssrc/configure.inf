@@ -4,7 +4,7 @@ This file is generate by configure $Revision: 1.4 $
 PERL=/usr/bin/perl
 BBS_ID=yaka
 DOMAIN=bbs.bluelaser.cn
-CNAME=é¦¨æºªæµèŠ³
+CNAME=ĞÂÏªÁ÷·¼
 DEFAULTBD=sysop
 BUILD_PLATFORM=linux
 LIBCRYPT=DES

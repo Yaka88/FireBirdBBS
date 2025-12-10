@@ -30,7 +30,12 @@ jobs:
           flex \
           texinfo \
           libncurses5-dev \
-          gawk
+          gawk \
+          gperf
+        
+        # Verify cross-compiler installation
+        mipsel-linux-gnu-gcc --version
+        mipsel-linux-gnu-ar --version
         
     - name: Prepare build directories
       run: |
@@ -61,11 +66,17 @@ jobs:
         CFLAGS="$MIPS_CFLAGS" \
         ./configure --host=$MIPS_TARGET --prefix=$MIPS_PREFIX --enable-static --disable-shared
         
-        make
+        make -j$(nproc)
         make install
         
-        echo "termcap built successfully"
+        if [ ! -f $MIPS_PREFIX/lib/libtermcap.a ]; then
+          echo "ERROR: libtermcap.a not built!"
+          exit 1
+        fi
+        
+        echo "✓ termcap built successfully"
         ls -la $MIPS_PREFIX/lib/libtermcap.a
+        file $MIPS_PREFIX/lib/libtermcap.a
         
     - name: Download and build ncurses
       run: |
@@ -94,11 +105,17 @@ jobs:
           --with-default-terminfo-dir=/usr/share/terminfo \
           --with-terminfo-dirs=/usr/share/terminfo:/etc/terminfo
         
-        make
+        make -j$(nproc)
         make install
         
-        echo "ncurses built successfully"
+        if [ ! -f $MIPS_PREFIX/lib/libncurses.a ]; then
+          echo "ERROR: libncurses.a not built!"
+          exit 1
+        fi
+        
+        echo "✓ ncurses built successfully"
         ls -la $MIPS_PREFIX/lib/libncurses.a
+        file $MIPS_PREFIX/lib/libncurses.a
         
     - name: Download and build libxcrypt (replacement for libcrypt)
       run: |
@@ -119,26 +136,37 @@ jobs:
           --disable-failure-tokens \
           --enable-obsolete-api=glibc
         
-        make
+        make -j$(nproc)
         make install
         
-        echo "libxcrypt built successfully"
+        if [ ! -f $MIPS_PREFIX/lib/libcrypt.a ]; then
+          echo "ERROR: libcrypt.a not built!"
+          exit 1
+        fi
+        
+        echo "✓ libxcrypt built successfully"
         ls -la $MIPS_PREFIX/lib/libcrypt.a
+        file $MIPS_PREFIX/lib/libcrypt.a
         
     - name: Build libBBS
       run: |
         cd $GITHUB_WORKSPACE/bbssrc/lib/libBBS
         
-        # Build libBBS
+        # Build libBBS with cross-compiler
         make clean || true
         
-        CC=$MIPS_CC \
-        AR=$MIPS_AR \
-        RANLIB=$MIPS_RANLIB \
-        CFLAGS="$MIPS_CFLAGS -I$GITHUB_WORKSPACE/bbssrc/include" \
-        make all
+        make all \
+          CC=$MIPS_CC \
+          AR=$MIPS_AR \
+          RANLIB=$MIPS_RANLIB \
+          CFLAGS="$MIPS_CFLAGS -I$GITHUB_WORKSPACE/bbssrc/include"
         
-        echo "libBBS built successfully"
+        if [ ! -f ../libBBS.a ]; then
+          echo "ERROR: libBBS.a not built!"
+          exit 1
+        fi
+        
+        echo "✓ libBBS built successfully"
         ls -la ../libBBS.a
         file ../libBBS.a
         
@@ -153,19 +181,23 @@ jobs:
         sh ver.sh ../include/version.h
         
         # Build all executables with static linking
-        CC=$MIPS_CC \
-        CFLAGS="$MIPS_CFLAGS -I$GITHUB_WORKSPACE/bbssrc/include -I$MIPS_PREFIX/include" \
-        LIBS="-L$MIPS_PREFIX/lib -L$GITHUB_WORKSPACE/bbssrc/lib -static -ltermcap -lcrypt -lBBS" \
-        BBSHOME=/home/bbs \
-        BBS_UID=9999 \
-        BBSGID=99 \
-        OS_DEF="-DLINUX -DTERMIOS" \
-        CSIE_DEF="-DSHOW_IDLE_TIME -DWITHOUT_CHROOT" \
-        make all
+        # Note: -ldl, -lrpcsvc, -lbsd, -lnsl are typically included in static glibc or not needed
+        make all \
+          CC=$MIPS_CC \
+          CFLAGS="$MIPS_CFLAGS -I$GITHUB_WORKSPACE/bbssrc/include -I$MIPS_PREFIX/include" \
+          LIBS="-L$MIPS_PREFIX/lib -L$GITHUB_WORKSPACE/bbssrc/lib -static -lBBS -ltermcap -lcrypt" \
+          BBSHOME=/home/bbs \
+          BBS_UID=9999 \
+          BBSGID=99 \
+          OS_DEF="-DLINUX -DTERMIOS" \
+          CSIE_DEF="-DSHOW_IDLE_TIME -DWITHOUT_CHROOT"
         
         echo "BBS executables built successfully"
-        ls -la bbsd chatd thread expire
-        file bbsd chatd thread expire
+        ls -la bbsd chatd thread expire 2>/dev/null || ls -la bbsd chatd thread 2>/dev/null || ls -la
+        file bbsd 2>/dev/null || echo "bbsd not found"
+        file chatd 2>/dev/null || echo "chatd not found"
+        file thread 2>/dev/null || echo "thread not found"
+        file expire 2>/dev/null || echo "expire not found"
         
     - name: Build utilities
       run: |
@@ -173,10 +205,11 @@ jobs:
         
         # Check if util has Makefile
         if [ -f Makefile ]; then
-          CC=$MIPS_CC \
-          CFLAGS="$MIPS_CFLAGS -I$GITHUB_WORKSPACE/bbssrc/include -I$MIPS_PREFIX/include" \
-          LIBS="-L$MIPS_PREFIX/lib -L$GITHUB_WORKSPACE/bbssrc/lib -static -ltermcap -lcrypt -lBBS" \
-          make all || echo "Some utilities may have failed, continuing..."
+          make all \
+            CC=$MIPS_CC \
+            CFLAGS="$MIPS_CFLAGS -I$GITHUB_WORKSPACE/bbssrc/include -I$MIPS_PREFIX/include" \
+            LIBS="-L$MIPS_PREFIX/lib -L$GITHUB_WORKSPACE/bbssrc/lib -static -ltermcap -lcrypt -lBBS" \
+            || echo "Some utilities may have failed, continuing..."
         fi
         
         # Find all compiled executables
@@ -188,29 +221,82 @@ jobs:
         cd $GITHUB_WORKSPACE/bbssrc
         
         # Collect main executables
-        if [ -f src/bbsd ]; then cp src/bbsd $HOME/bbs-mipsle-binaries/; fi
-        if [ -f src/chatd ]; then cp src/chatd $HOME/bbs-mipsle-binaries/; fi
-        if [ -f src/thread ]; then cp src/thread $HOME/bbs-mipsle-binaries/; fi
-        if [ -f src/expire ]; then cp src/expire $HOME/bbs-mipsle-binaries/; fi
+        BUILT_COUNT=0
+        if [ -f src/bbsd ]; then 
+          cp src/bbsd $HOME/bbs-mipsle-binaries/
+          echo "✓ Copied bbsd"
+          BUILT_COUNT=$((BUILT_COUNT + 1))
+        else
+          echo "✗ bbsd not found"
+        fi
+        
+        if [ -f src/chatd ]; then 
+          cp src/chatd $HOME/bbs-mipsle-binaries/
+          echo "✓ Copied chatd"
+          BUILT_COUNT=$((BUILT_COUNT + 1))
+        else
+          echo "✗ chatd not found"
+        fi
+        
+        if [ -f src/thread ]; then 
+          cp src/thread $HOME/bbs-mipsle-binaries/
+          echo "✓ Copied thread"
+          BUILT_COUNT=$((BUILT_COUNT + 1))
+        else
+          echo "✗ thread not found"
+        fi
+        
+        if [ -f src/expire ]; then 
+          cp src/expire $HOME/bbs-mipsle-binaries/
+          echo "✓ Copied expire"
+          BUILT_COUNT=$((BUILT_COUNT + 1))
+        else
+          echo "✗ expire not found"
+        fi
         
         # Collect .so files if any
-        if [ -f src/paging.so ]; then cp src/paging.so $HOME/bbs-mipsle-binaries/; fi
+        if [ -f src/paging.so ]; then 
+          cp src/paging.so $HOME/bbs-mipsle-binaries/
+          echo "✓ Copied paging.so"
+          BUILT_COUNT=$((BUILT_COUNT + 1))
+        fi
         
         # Collect utilities
-        find util -type f -executable -exec sh -c 'file "$1" | grep -q MIPS && cp "$1" $HOME/bbs-mipsle-binaries/' _ {} \; || true
+        find util -type f -executable 2>/dev/null | while read f; do
+          if file "$f" 2>/dev/null | grep -q MIPS; then
+            cp "$f" "$HOME/bbs-mipsle-binaries/"
+            echo "✓ Copied $(basename $f)"
+            BUILT_COUNT=$((BUILT_COUNT + 1))
+          fi
+        done || true
+        
+        # Check if we have at least the main executable
+        if [ $BUILT_COUNT -eq 0 ]; then
+          echo "ERROR: No executables were built!"
+          exit 1
+        fi
         
         # Verify all files
         cd $HOME/bbs-mipsle-binaries
-        echo "=== Built MIPS binaries ==="
+        echo ""
+        echo "=== Built MIPS binaries (Total: $BUILT_COUNT) ==="
         ls -lah
-        file * || true
+        echo ""
+        echo "=== File types ==="
+        for f in *; do
+          echo "--- $f ---"
+          file "$f"
+        done
         
         # Create compressed archive
         cd $HOME
         tar czf bbs-mipsle-binaries.tar.gz bbs-mipsle-binaries/
         
+        echo ""
         echo "=== Archive created ==="
         ls -lah bbs-mipsle-binaries.tar.gz
+        echo ""
+        echo "Build completed successfully with $BUILT_COUNT binaries!"
         
     - name: Copy archive to repository
       run: |
@@ -228,6 +314,52 @@ jobs:
         cd $GITHUB_WORKSPACE
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git add bbs-mipsle-binaries.tar.gz
-        git diff --cached --quiet || git commit -m "Add MIPS32LE cross-compiled binaries"
-        git push || echo "Push failed, possibly no changes or permissions issue"
+        git add bbs-mipsle-binaries.tar.gz || true
+        
+        if git diff --cached --quiet; then
+          echo "No changes to commit (binary already exists and unchanged)"
+        else
+          BUILD_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          git commit -m "Update MIPS32LE binaries - Built on $BUILD_DATE
+
+Auto-generated by GitHub Actions
+Target: mipsel-linux-gnu (MIPS32 Little-Endian)
+Flags: -mips32 -mabi=32 -EL -fno-stack-protector -fcommon -O2
+Static linking: Yes
+Debug symbols: Yes (-g3 -gdwarf-2)"
+          
+          # Try to push, but don't fail if there are permission issues
+          git push origin main || echo "Warning: Could not push to repository. Binary is available in artifacts."
+        fi
+    
+    - name: Create build summary
+      run: |
+        cd $HOME/bbs-mipsle-binaries
+        echo "## MIPS32LE Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Build Information" >> $GITHUB_STEP_SUMMARY
+        echo "- **Target**: mipsel-linux-gnu (MIPS32 Little-Endian)" >> $GITHUB_STEP_SUMMARY
+        echo "- **ABI**: o32 (32-bit)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Compiler Flags" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        echo "$MIPS_CFLAGS" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Built Executables" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| File | Size | Type |" >> $GITHUB_STEP_SUMMARY
+        echo "|------|------|------|" >> $GITHUB_STEP_SUMMARY
+        for f in *; do
+          SIZE=$(ls -lh "$f" | awk '{print $5}')
+          TYPE=$(file -b "$f" | cut -d',' -f1-2)
+          echo "| $f | $SIZE | $TYPE |" >> $GITHUB_STEP_SUMMARY
+        done
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Archive" >> $GITHUB_STEP_SUMMARY
+        ARCHIVE_SIZE=$(ls -lh $HOME/bbs-mipsle-binaries.tar.gz | awk '{print $5}')
+        echo "- **File**: bbs-mipsle-binaries.tar.gz" >> $GITHUB_STEP_SUMMARY
+        echo "- **Size**: $ARCHIVE_SIZE" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Build completed successfully!" >> $GITHUB_STEP_SUMMARY

@@ -390,6 +390,7 @@ char    q_id[IDLEN + 2];
         update_utmp();
         move(1, 0);
         clrtobot();
+        prints("test mail dir\n"); //add by yaka for test
         sprintf(qry_mail_dir, "mail/%c/%s/%s", toupper(lookupuser.userid[0]), lookupuser.userid, DOT_DIR);
 
         exp = countexp(&lookupuser);
@@ -397,10 +398,15 @@ char    q_id[IDLEN + 2];
 
 
 /* add end */       
- 
+        prints("test lookupuser.userid\n"); //add by yaka for test
+        
         prints("[1;37m%s [m([1;33m%s[m) ¹²ÉÏÕ¾ [1;32m%d[m ´Î£¬·¢±í¹ý [1;32m%d[m ÆªÎÄÕÂ ([1;33m%s[m)",
                 lookupuser.userid, lookupuser.username, lookupuser.numlogins, lookupuser.numposts,cposts(lookupuser.numposts));
         strcpy(planid, lookupuser.userid);
+
+        prints("test ctime \n"); //add by yaka for test
+   
+
         strcpy(genbuf, ctime(&(lookupuser.lastlogin)));
         if ((newline = strchr(genbuf, '\n')) != NULL)
                 *newline = '\0';

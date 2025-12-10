@@ -345,7 +345,20 @@ char   *userid;
         }
 }
 
-
+static void
+bbsd_log(char *str)
+{
+	char buf[256];
+	time_t mytime;
+	struct tm *tm;
+	
+	mytime = time(0);
+	tm = localtime(&mytime);
+	sprintf(buf, "%.2d/%.2d/%.2d %.2d:%.2d:%.2d bbsd[%d]: %s", tm->tm_year % 100 , tm->tm_mon + 1, tm->tm_mday,
+		 tm->tm_hour, tm->tm_min, tm->tm_sec, getpid(), str);
+	fprintf(stderr,"%s", buf);
+	file_append("/home/bbs/log/bbsd.log", buf);
+}
 
 /* Modified By Excellent*/
 int
@@ -390,8 +403,8 @@ char    q_id[IDLEN + 2];
         update_utmp();
         move(1, 0);
         clrtobot();
-        fprintf(stderr, "test mail dir\n");
-fflush(stderr); //add by yaka for test
+        bbsd_log("test mail dir");//add by yaka for test
+
         sprintf(qry_mail_dir, "mail/%c/%s/%s", toupper(lookupuser.userid[0]), lookupuser.userid, DOT_DIR);
 
         exp = countexp(&lookupuser);
@@ -399,14 +412,13 @@ fflush(stderr); //add by yaka for test
 
 
 /* add end */       
-        fprintf(stderr, "lookupuser.userid\n");
-fflush(stderr); //add by yaka for test
+        bbsd_log("lookupuser.userid");//add by yaka for test
         
         prints("[1;37m%s [m([1;33m%s[m) ¹²ÉÏÕ¾ [1;32m%d[m ´Î£¬·¢±í¹ý [1;32m%d[m ÆªÎÄÕÂ ([1;33m%s[m)",
                 lookupuser.userid, lookupuser.username, lookupuser.numlogins, lookupuser.numposts,cposts(lookupuser.numposts));
         strcpy(planid, lookupuser.userid);
 
-        fprintf(stderr, "test ctime \n"); //add by yaka for test
+        bbsd_log("test ctime"); //add by yaka for test
    
 
         strcpy(genbuf, ctime(&(lookupuser.lastlogin)));

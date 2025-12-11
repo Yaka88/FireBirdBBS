@@ -85,7 +85,7 @@ int     number, mode;
 
 
 char   *
-cexp(exp)
+chexp(exp)
 int     exp;
 {
 	int     expbase = 0;
@@ -248,7 +248,7 @@ int     limit;
 	if (currentuser.numlogins > 0) {
 		tmpnum = countexp(&currentuser);
 		sprintf(exp, "%d", tmpnum);
-		strcpy(ccexp, cexp(tmpnum));
+		strcpy(ccexp, chexp(tmpnum));
 		tmpnum = countperf(&currentuser);
 		sprintf(perf, "%d", tmpnum);
 		strcpy(ccperf, cperf(tmpnum));

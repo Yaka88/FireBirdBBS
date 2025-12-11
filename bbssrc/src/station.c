@@ -123,8 +123,7 @@ char   *maintopic = "½ñÌì£¬ÎÒÃÇÒªÌÖÂÛµÄÊÇ.....";
 char   *msg_not_op = "[1;37m¡ï[32mÄú²»ÊÇÕâÏá·¿µÄÀÏ´ó[37m ¡ï[m";
 char   *msg_no_such_id = "[1;37m¡ï[32m [[36m%s[32m] ²»ÔÚÕâ¼äÏá·¿Àï[37m ¡ï[m";
 char   *msg_not_here = "[1;37m¡ï [32m[[36m%s[32m] ²¢Ã»ÓĞÇ°À´±¾»áÒéÌü[37m ¡ï[m";
-char   *msg_cant_kick ="[1;37m¡ï [32m[[36m%s[32m] Ò²ÊÇ¹ÜÀíÔ±,²»¿ÉÒÔÌß[
-37m ¡ï[m";	//add by yaka
+char   *msg_cant_kick ="[1;37m¡ï [32m[[36m%s[32m] Ò²ÊÇ¹ÜÀíÔ±,²»¿ÉÒÔÌß[37m ¡ï[m";	//add by yaka
 #define HAVE_REPORT
 
 #ifdef  HAVE_REPORT

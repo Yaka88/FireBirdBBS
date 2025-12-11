@@ -83,7 +83,7 @@ int     real;
 	prints("上站次数     : %d 次\n", u->numlogins);
 	prints("上站总时数   : %d 小时 %d 分钟\n", u->stay / 3600, (u->stay / 60) % 60);
 	exp = countexp(u);
-	prints("经验值       : %d  (%s)\n", exp, cexp(exp));
+	prints("经验值       : %d  (%s)\n", exp, chexp(exp));
 	exp = countperf(u);
 	prints("表现值       : %d  (%s)\n", exp, cperf(exp));
 	if (real) {

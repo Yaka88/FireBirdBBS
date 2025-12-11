@@ -73,7 +73,6 @@ $Id: bbs.h,v 1.4 2000/02/14 06:05:50 edwardc Exp $
 
 /* if you don't like show version id on logging, just undef VERSION_ID */
 /* #undef VERSION_ID */
-#undef cexp  /* to avoid conflict with math.h */
 
 #ifndef LOCK_EX
   #define LOCK_EX         2       /* exclusive lock */

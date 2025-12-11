@@ -345,21 +345,6 @@ char   *userid;
         }
 }
 
-static void
-bbsd_log(char *str)
-{
-	char buf[256];
-	time_t mytime;
-	struct tm *tm;
-	
-	mytime = time(0);
-	tm = localtime(&mytime);
-	sprintf(buf, "%.2d/%.2d/%.2d %.2d:%.2d:%.2d bbsd[%d]: %s", tm->tm_year % 100 , tm->tm_mon + 1, tm->tm_mday,
-		 tm->tm_hour, tm->tm_min, tm->tm_sec, getpid(), str);
-	fprintf(stderr,"%s", buf);
-	file_append("/home/bbs/log/bbsd.log", buf);
-}
-
 /* Modified By Excellent*/
 int
 t_query(q_id)

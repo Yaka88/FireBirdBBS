@@ -546,8 +546,8 @@ check_register_info()
 		//Modify by yaka start
 	if (strchr(urec->email, '@') == NULL) {
 		move(8, 0);
-		//prints("µç×ÓĞÅÏä¸ñÊ½Îª: [1;37muserid@your.domain.name[m\n");
-		prints("Çë°´ <Enter>¼ÌĞø)");
+		prints("µç×ÓĞÅÏä¸ñÊ½Îª: [1;37muserid@your.domain.name[m\n");
+		prints("ÇëÊäÈëEmail <Enter>¼ÌĞø)");
 		getdata(10, 0, "> ", urec->email, NAMELEN, DOECHO, YEA);
 		if (strchr(urec->email, '@') == NULL) {
 			sprintf(genbuf, "%s.bbs@%s", urec->userid, buf);

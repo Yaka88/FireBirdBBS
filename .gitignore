@@ -1,0 +1,11 @@
+# Build artifacts
+build-mipsle/
+output-mipsle/
+FireBirdBBS-mipsle-*.tar.gz
+
+# Temporary files
+*.o
+*.a
+*.so
+*~
+*.BAK

@@ -1,0 +1,72 @@
+name: Build MIPS LE Binary
+
+on:
+  workflow_dispatch:  # Manual trigger only
+    inputs:
+      version_tag:
+        description: 'Version tag for the build (optional)'
+        required: false
+        default: ''
+
+jobs:
+  build-mipsle:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Set up build environment
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y dos2unix
+        
+    - name: Run MIPS LE cross-compilation
+      run: |
+        chmod +x ./build-mipsle.sh
+        ./build-mipsle.sh
+        
+    - name: List build artifacts
+      run: |
+        echo "Build artifacts:"
+        ls -lh FireBirdBBS-mipsle-*.tar.gz
+        echo ""
+        echo "Package contents:"
+        tar tzf FireBirdBBS-mipsle-*.tar.gz | head -50
+        
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: FireBirdBBS-mipsle-build
+        path: FireBirdBBS-mipsle-*.tar.gz
+        retention-days: 30
+        
+    - name: Create Release (if version tag provided)
+      if: ${{ github.event.inputs.version_tag != '' }}
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.event.inputs.version_tag }}
+        name: FireBirdBBS MIPS LE ${{ github.event.inputs.version_tag }}
+        body: |
+          FireBirdBBS cross-compiled for MIPS 32-bit Little Endian platform.
+          
+          ## Build Information
+          - Architecture: MIPS 32-bit Little Endian (mipsel)
+          - ABI: o32 (32-bit)
+          - Build Date: ${{ github.event.repository.updated_at }}
+          
+          ## Package Contents
+          - `bin/`: All executables (bbsd, chatd, thread, expire) and utilities
+          - `lib/`: Dynamic libraries (libc and dependencies)
+          
+          ## Installation
+          ```bash
+          tar xzf FireBirdBBS-mipsle-*.tar.gz
+          cd bin
+          ./bbsd
+          ```
+        files: FireBirdBBS-mipsle-*.tar.gz
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

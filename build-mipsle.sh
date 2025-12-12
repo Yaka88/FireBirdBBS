@@ -275,25 +275,37 @@ SYSROOT="/usr/${TARGET_ARCH}"
 # Copy necessary libc and other dynamic libraries to lib directory
 echo "  Copying dynamic libraries from sysroot to lib/..."
 if [ -d "$SYSROOT" ]; then
-    # Copy essential libraries
-    for lib in libc.so.* libm.so.* libdl.so.* libpthread.so.* librt.so.* libnsl.so.* libutil.so.*; do
+    # Copy essential libraries - look for actual .so.X files first
+    echo "  Copying actual library files (not linker scripts)..."
+    for lib in libc.so.6 libm.so.6 libdl.so.2 libpthread.so.0 librt.so.1 libnsl.so.1 libutil.so.1; do
         if [ -f "${SYSROOT}/lib/${lib}" ]; then
             echo "    Copying ${lib}..."
-            cp -P "${SYSROOT}/lib/${lib}" "${LIB_DIR}/" 2>/dev/null || true
+            cp "${SYSROOT}/lib/${lib}" "${LIB_DIR}/"
         fi
     done
     
-    # Copy ld-linux
+    # Copy ld-linux (the dynamic linker)
     if [ -f "${SYSROOT}/lib/ld.so.1" ]; then
-        cp -P "${SYSROOT}/lib/ld.so.1" "${LIB_DIR}/"
+        echo "    Copying ld.so.1..."
+        cp "${SYSROOT}/lib/ld.so.1" "${LIB_DIR}/"
     fi
     
-    # Copy any symlinks
-    for lib in libc.so libm.so libdl.so libpthread.so librt.so libnsl.so libutil.so; do
-        if [ -L "${SYSROOT}/lib/${lib}" ]; then
-            cp -P "${SYSROOT}/lib/${lib}" "${LIB_DIR}/" 2>/dev/null || true
-        fi
+    # Copy any additional versioned libraries found
+    for pattern in "libc-*.so" "libm-*.so" "libdl-*.so" "libpthread-*.so"; do
+        for lib in ${SYSROOT}/lib/${pattern}; do
+            if [ -f "$lib" ] 2>/dev/null; then
+                libname=$(basename "$lib")
+                echo "    Copying ${libname}..."
+                cp "$lib" "${LIB_DIR}/"
+            fi
+        done
     done
+    
+    # Copy libc_nonshared.a if it exists (sometimes needed)
+    if [ -f "${SYSROOT}/lib/libc_nonshared.a" ]; then
+        echo "    Copying libc_nonshared.a..."
+        cp "${SYSROOT}/lib/libc_nonshared.a" "${LIB_DIR}/"
+    fi
 fi
 
 echo ""

@@ -277,7 +277,7 @@ echo ""
 echo "Step 11: Creating single package file..."
 cd "${SCRIPT_DIR}"
 
-PACKAGE_NAME="FireBirdBBS-mipsle-$(date +%Y%m%d-%H%M%S).tar.gz"
+PACKAGE_NAME="FireBirdBBS-mipsle.tar.gz"
 echo "  Creating ${PACKAGE_NAME}..."
 tar czf "${PACKAGE_NAME}" -C "${OUTPUT_DIR}" bin
 
@@ -296,7 +296,7 @@ if [ -f "${BIN_DIR}/bbsd" ]; then
     ${CROSS_PREFIX}readelf -h "${BIN_DIR}/bbsd" | grep -E "Class|Machine|ABI"
     echo ""
     echo "Checking if statically linked:"
-    file "${BIN_DIR}/bbsd" | grep -q "statically linked" && echo "  ✓ bbsd is statically linked" || echo "  ✗ bbsd is dynamically linked"
+    file "${BIN_DIR}/bbsd" | grep -q "statically linked" && echo "  ✄1�7 bbsd is statically linked" || echo "  ✄1�7 bbsd is dynamically linked"
 fi
 
 echo ""

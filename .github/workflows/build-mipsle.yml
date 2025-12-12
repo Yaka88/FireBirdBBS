@@ -29,16 +29,16 @@ jobs:
     - name: List build artifacts
       run: |
         echo "Build artifacts:"
-        ls -lh FireBirdBBS-mipsle-*.tar.gz
+        ls -lh FireBirdBBS-mipsle.tar.gz
         echo ""
         echo "Package contents:"
-        tar tzf FireBirdBBS-mipsle-*.tar.gz | head -50
+        tar tzf FireBirdBBS-mipsle.tar.gz | head -50
         
     - name: Upload build artifact
       uses: actions/upload-artifact@v3
       with:
         name: FireBirdBBS-mipsle-build
-        path: FireBirdBBS-mipsle-*.tar.gz
+        path: FireBirdBBS-mipsle.tar.gz
         retention-days: 30
         
     - name: Create Release (if version tag provided)
@@ -61,11 +61,11 @@ jobs:
           
           ## Installation
           ```bash
-          tar xzf FireBirdBBS-mipsle-*.tar.gz
+          tar xzf FireBirdBBS-mipsle.tar.gz
           cd bin
           ./bbsd
           ```
-        files: FireBirdBBS-mipsle-*.tar.gz
+        files: FireBirdBBS-mipsle.tar.gz
         draft: false
         prerelease: false
       env:

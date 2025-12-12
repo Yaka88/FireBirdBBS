@@ -551,7 +551,7 @@ check_register_info()
 		getdata(10, 0, "> ", urec->email, NAMELEN, DOECHO, YEA);
 		if (strchr(urec->email, '@') == NULL) {
 			sprintf(genbuf, "%s.bbs@%s", urec->userid, buf);
-			strncpy(urec->email, genbuf, STRLEN);
+			strncpy(urec->email, genbuf, STRLEN-12);
 		}
 	}
 		//modify end

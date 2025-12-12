@@ -56,8 +56,8 @@ jobs:
           - Build Date: ${{ github.event.repository.updated_at }}
           
           ## Package Contents
-          - `bin/`: All executables and utilities
-          - `Lib/`: Dynamic libraries (libc and dependencies)
+          - `bin/`: All executables (bbsd, chatd, thread, expire) and utilities
+          - `lib/`: Dynamic libraries (libc and dependencies)
           
           ## Installation
           ```bash

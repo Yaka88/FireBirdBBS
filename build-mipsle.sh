@@ -17,11 +17,11 @@ MIPS_CFLAGS="-mips32 -mabi=32 -EL -fno-stack-protector -fcommon -O2 -U_TIME_BITS
 TARGET_ARCH="mipsel-linux-gnu"
 CROSS_PREFIX="${TARGET_ARCH}-"
 
-# Directories - Note: Lib with capital L as requested
+# Directories - lib with lowercase as per requirement
 BUILD_DIR="${SCRIPT_DIR}/build-mipsle"
 OUTPUT_DIR="${SCRIPT_DIR}/output-mipsle"
 BIN_DIR="${OUTPUT_DIR}/bin"
-LIB_DIR="${OUTPUT_DIR}/Lib"
+LIB_DIR="${OUTPUT_DIR}/lib"
 SRC_DIR="${SCRIPT_DIR}/bbssrc"
 
 echo "Step 1: Installing MIPS cross-compilation toolchain..."
@@ -57,7 +57,7 @@ export STRIP="${CROSS_PREFIX}strip"
 
 # Combine CFLAGS - don't convert charset, keep as-is
 export FULL_CFLAGS="${MIPS_CFLAGS} -I${BUILD_DIR}/include -Wunused"
-export LDFLAGS="-Wl,-rpath,'\$\$ORIGIN/../Lib' -L${BUILD_DIR}/lib"
+export LDFLAGS="-Wl,-rpath,'\$\$ORIGIN/../lib' -L${BUILD_DIR}/lib"
 
 echo "CC = ${CC}"
 echo "CFLAGS = ${FULL_CFLAGS}"
@@ -120,8 +120,17 @@ for src in admintool.c announce.c bbs.c bbsd.c bbsgopher.c bcache.c bm.c \
     obj="${src%.c}.o"
     echo "    $src -> $obj"
     
+    # Special handling for pass.c - needs -DDES flag for DES encryption
+    if [ "$src" = "pass.c" ]; then
+        if ${CC} ${FULL_CFLAGS} -DLINUX -DTERMIOS -DSHOW_IDLE_TIME -DWITHOUT_CHROOT -DHAVE_VERSION_H -DDES -c "$src" -o "$obj" 2>&1 | grep -v "warning:"; then
+            COMPILE_SUCCESS=$((COMPILE_SUCCESS + 1))
+        else
+            echo "      WARNING: Failed to compile $src with -DDES"
+            FAILED_FILES="$FAILED_FILES $src"
+            rm -f "$obj"
+        fi
     # Special handling for five.c - has encoding issues with line continuations
-    if [ "$src" = "five.c" ]; then
+    elif [ "$src" = "five.c" ]; then
         # Try to compile but don't fail the build if it doesn't work
         if ! ${CC} ${FULL_CFLAGS} -DLINUX -DTERMIOS -DSHOW_IDLE_TIME -DWITHOUT_CHROOT -DHAVE_VERSION_H -c "$src" -o "$obj" 2>&1 | grep -v "warning:"; then
             echo "      Note: five.c has encoding issues, will use stub"
@@ -174,28 +183,6 @@ EOF
     OBJ_FILES="$OBJ_FILES five_stub.o"
 fi
 
-# Create stubs for pass.c functions if pass.o is missing
-if [ ! -f "pass.o" ]; then
-    echo "  Creating pass function stubs (pass.c has compilation issues)..."
-    cat > pass_stub.c << 'EOF'
-/* Stubs for pass.c functions when pass.c cannot be compiled */
-#include <string.h>
-
-char *genpasswd(char *pw) {
-    static char buf[14];
-    strncpy(buf, pw, 13);
-    buf[13] = '\0';
-    return buf;
-}
-
-int checkpasswd(char *passwd, char *test) {
-    return (strcmp(passwd, test) == 0);
-}
-EOF
-    ${CC} ${FULL_CFLAGS} -c pass_stub.c -o pass_stub.o
-    OBJ_FILES="$OBJ_FILES pass_stub.o"
-fi
-
 echo "  Linking with static libraries: libBBS, libtermcap, libcrypt"
 ${CC} -o bbsd ${FULL_CFLAGS} ${LDFLAGS} ${OBJ_FILES} \
     -L../lib -lBBS -ltermcap -lcrypt -export-dynamic -ldl -lm
@@ -206,6 +193,10 @@ ${CC} ${FULL_CFLAGS} ${LDFLAGS} -o chatd station.c -DLINUX -DTERMIOS \
 
 echo "  Linking thread..."
 ${CC} ${FULL_CFLAGS} ${LDFLAGS} -o thread record.c thread.c -DLINUX -DTERMIOS \
+    -ltermcap -lcrypt -ldl -lm
+
+echo "  Linking expire..."
+${CC} ${FULL_CFLAGS} ${LDFLAGS} -o expire expire.c -DLINUX -DTERMIOS \
     -ltermcap -lcrypt -ldl -lm
 
 # Build paging.so if needed (skip if fails - not critical)
@@ -219,7 +210,7 @@ fi
 
 echo ""
 echo "Step 7: Copying main executables to bin directory..."
-cp bbsd chatd thread "${BIN_DIR}/"
+cp bbsd chatd thread expire "${BIN_DIR}/"
 if [ -f paging.so ]; then
     cp paging.so "${BIN_DIR}/"
 fi
@@ -274,15 +265,15 @@ done
 echo "  Utilities: $UTIL_SUCCESS compiled successfully, $UTIL_FAILED failed/skipped"
 
 echo ""
-echo "Step 9: Extracting and copying libc dependencies to Lib directory..."
+echo "Step 9: Extracting and copying libc dependencies to lib directory..."
 cd "${BIN_DIR}"
 
 # Find all dynamic library dependencies
 echo "  Analyzing dependencies..."
 SYSROOT="/usr/${TARGET_ARCH}"
 
-# Copy necessary libc and other dynamic libraries to Lib directory
-echo "  Copying dynamic libraries from sysroot to Lib/..."
+# Copy necessary libc and other dynamic libraries to lib directory
+echo "  Copying dynamic libraries from sysroot to lib/..."
 if [ -d "$SYSROOT" ]; then
     # Copy essential libraries
     for lib in libc.so.* libm.so.* libdl.so.* libpthread.so.* librt.so.* libnsl.so.* libutil.so.*; do
@@ -321,7 +312,7 @@ cd "${SCRIPT_DIR}"
 
 PACKAGE_NAME="FireBirdBBS-mipsle-$(date +%Y%m%d-%H%M%S).tar.gz"
 echo "  Creating ${PACKAGE_NAME}..."
-tar czf "${PACKAGE_NAME}" -C "${OUTPUT_DIR}" bin Lib
+tar czf "${PACKAGE_NAME}" -C "${OUTPUT_DIR}" bin lib
 
 echo ""
 echo "Step 12: Build verification..."
@@ -350,7 +341,7 @@ echo "=========================================="
 echo "Package: ${PACKAGE_NAME}"
 echo "Output directory: ${OUTPUT_DIR}"
 echo "  - bin/: All executables and utilities"
-echo "  - Lib/: Dynamic libraries (libc and dependencies)"
+echo "  - lib/: Dynamic libraries (libc and dependencies)"
 echo ""
 echo "To extract on target system:"
 echo "  tar xzf ${PACKAGE_NAME}"

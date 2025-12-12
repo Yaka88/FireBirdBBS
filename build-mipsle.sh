@@ -17,11 +17,10 @@ MIPS_CFLAGS="-mips32 -mabi=32 -EL -fno-stack-protector -fcommon -O2 -U_TIME_BITS
 TARGET_ARCH="mipsel-linux-gnu"
 CROSS_PREFIX="${TARGET_ARCH}-"
 
-# Directories - lib with lowercase as per requirement
+# Directories - no lib directory needed for static linking
 BUILD_DIR="${SCRIPT_DIR}/build-mipsle"
 OUTPUT_DIR="${SCRIPT_DIR}/output-mipsle"
 BIN_DIR="${OUTPUT_DIR}/bin"
-LIB_DIR="${OUTPUT_DIR}/lib"
 SRC_DIR="${SCRIPT_DIR}/bbssrc"
 
 echo "Step 1: Installing MIPS cross-compilation toolchain..."
@@ -39,7 +38,7 @@ echo "Toolchain installed: $(${CROSS_PREFIX}gcc --version | head -1)"
 echo ""
 echo "Step 2: Setting up build environment..."
 rm -rf "$BUILD_DIR" "$OUTPUT_DIR"
-mkdir -p "$BUILD_DIR" "$BIN_DIR" "$LIB_DIR"
+mkdir -p "$BUILD_DIR" "$BIN_DIR"
 
 # Copy source to build directory
 cp -r "$SRC_DIR"/* "$BUILD_DIR/"
@@ -57,7 +56,7 @@ export STRIP="${CROSS_PREFIX}strip"
 
 # Combine CFLAGS - don't convert charset, keep as-is
 export FULL_CFLAGS="${MIPS_CFLAGS} -I${BUILD_DIR}/include -Wunused"
-export LDFLAGS="-Wl,-rpath,'\$\$ORIGIN/../lib' -L${BUILD_DIR}/lib"
+export LDFLAGS="-static -L${BUILD_DIR}/lib"
 
 echo "CC = ${CC}"
 echo "CFLAGS = ${FULL_CFLAGS}"
@@ -265,51 +264,7 @@ done
 echo "  Utilities: $UTIL_SUCCESS compiled successfully, $UTIL_FAILED failed/skipped"
 
 echo ""
-echo "Step 9: Extracting and copying libc dependencies to lib directory..."
-cd "${BIN_DIR}"
-
-# Find all dynamic library dependencies
-echo "  Analyzing dependencies..."
-SYSROOT="/usr/${TARGET_ARCH}"
-
-# Copy necessary libc and other dynamic libraries to lib directory
-echo "  Copying dynamic libraries from sysroot to lib/..."
-if [ -d "$SYSROOT" ]; then
-    # Copy essential libraries - look for actual .so.X files first
-    echo "  Copying actual library files (not linker scripts)..."
-    for lib in libc.so.6 libm.so.6 libdl.so.2 libpthread.so.0 librt.so.1 libnsl.so.1 libutil.so.1; do
-        if [ -f "${SYSROOT}/lib/${lib}" ]; then
-            echo "    Copying ${lib}..."
-            cp "${SYSROOT}/lib/${lib}" "${LIB_DIR}/"
-        fi
-    done
-    
-    # Copy ld-linux (the dynamic linker)
-    if [ -f "${SYSROOT}/lib/ld.so.1" ]; then
-        echo "    Copying ld.so.1..."
-        cp "${SYSROOT}/lib/ld.so.1" "${LIB_DIR}/"
-    fi
-    
-    # Copy any additional versioned libraries found
-    for pattern in "libc-*.so" "libm-*.so" "libdl-*.so" "libpthread-*.so"; do
-        for lib in ${SYSROOT}/lib/${pattern}; do
-            if [ -f "$lib" ] 2>/dev/null; then
-                libname=$(basename "$lib")
-                echo "    Copying ${libname}..."
-                cp "$lib" "${LIB_DIR}/"
-            fi
-        done
-    done
-    
-    # Copy libc_nonshared.a if it exists (sometimes needed)
-    if [ -f "${SYSROOT}/lib/libc_nonshared.a" ]; then
-        echo "    Copying libc_nonshared.a..."
-        cp "${SYSROOT}/lib/libc_nonshared.a" "${LIB_DIR}/"
-    fi
-fi
-
-echo ""
-echo "Step 10: Stripping binaries..."
+echo "Step 9: Stripping binaries..."
 cd "${BIN_DIR}"
 for binary in *; do
     if [ -f "$binary" ] && [ -x "$binary" ] && file "$binary" | grep -q "ELF"; then
@@ -324,26 +279,24 @@ cd "${SCRIPT_DIR}"
 
 PACKAGE_NAME="FireBirdBBS-mipsle-$(date +%Y%m%d-%H%M%S).tar.gz"
 echo "  Creating ${PACKAGE_NAME}..."
-tar czf "${PACKAGE_NAME}" -C "${OUTPUT_DIR}" bin lib
+tar czf "${PACKAGE_NAME}" -C "${OUTPUT_DIR}" bin
 
 echo ""
 echo "Step 12: Build verification..."
 echo "Binaries in ${BIN_DIR}:"
 ls -lh "${BIN_DIR}" | head -20
 echo ""
-if [ -d "${LIB_DIR}" ]; then
-    echo "Libraries in ${LIB_DIR}:"
-    ls -lh "${LIB_DIR}" | head -10
-fi
-echo ""
 echo "Package created:"
 ls -lh "${PACKAGE_NAME}"
 
 echo ""
-echo "Step 13: Checking binary architecture..."
+echo "Step 13: Checking binary architecture and linking..."
 if [ -f "${BIN_DIR}/bbsd" ]; then
     file "${BIN_DIR}/bbsd"
     ${CROSS_PREFIX}readelf -h "${BIN_DIR}/bbsd" | grep -E "Class|Machine|ABI"
+    echo ""
+    echo "Checking if statically linked:"
+    file "${BIN_DIR}/bbsd" | grep -q "statically linked" && echo "  ✓ bbsd is statically linked" || echo "  ✗ bbsd is dynamically linked"
 fi
 
 echo ""
@@ -352,8 +305,8 @@ echo "Build completed successfully!"
 echo "=========================================="
 echo "Package: ${PACKAGE_NAME}"
 echo "Output directory: ${OUTPUT_DIR}"
-echo "  - bin/: All executables and utilities"
-echo "  - lib/: Dynamic libraries (libc and dependencies)"
+echo "  - bin/: All executables and utilities (statically linked)"
+echo "  - lib/: (removed - all binaries are statically linked)"
 echo ""
 echo "To extract on target system:"
 echo "  tar xzf ${PACKAGE_NAME}"

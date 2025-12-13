@@ -1,0 +1,76 @@
+name: Build bbsnet and telnet MIPS LE Binary
+
+on:
+  workflow_dispatch:  # Manual trigger only
+    inputs:
+      version_tag:
+        description: 'Version tag for the build (optional)'
+        required: false
+        default: ''
+
+env:
+  PACKAGE_NAME: FireBirdBBS-bbsnet-telnet-mipsle.tar.gz
+
+jobs:
+  build-mipsle:
+    runs-on: ubuntu-latest
+    permissions:         
+      contents: write     
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Set up build environment
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y dos2unix
+        
+    - name: Run MIPS LE cross-compilation for bbsnet and telnet
+      run: |
+        chmod +x ./build-bbsnet-telnet.sh
+        ./build-bbsnet-telnet.sh
+        
+    - name: List build artifacts
+      run: |
+        echo "Build artifacts:"
+        ls -lh ${{ env.PACKAGE_NAME }}
+        echo ""
+        echo "Package contents:"
+        tar tzf ${{ env.PACKAGE_NAME }} | head -50
+        
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: FireBirdBBS-bbsnet-telnet-mipsle-build
+        path: ${{ env.PACKAGE_NAME }}
+        retention-days: 30
+        
+    - name: Create Release (if version tag provided)
+      if: ${{ github.event.inputs.version_tag != '' }}
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.event.inputs.version_tag }}
+        name: FireBirdBBS bbsnet and telnet MIPS LE ${{ github.event.inputs.version_tag }}
+        body: |
+          FireBirdBBS bbsnet and telnet cross-compiled for MIPS 32-bit Little Endian platform.
+          
+          ## Build Information
+          - Architecture: MIPS 32-bit Little Endian (mipsel)
+          - ABI: o32 (32-bit)
+          - Build Date: ${{ github.event.repository.updated_at }}
+          
+          ## Package Contents
+          - `bin/`: bbs (bbsnet) and telnet executables (statically linked)
+          
+          ## Installation
+          ```bash
+          tar xzf ${{ env.PACKAGE_NAME }}
+          cd bin
+          ./bbs
+          ./telnet hostname port
+          ```
+        files: ${{ env.PACKAGE_NAME }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

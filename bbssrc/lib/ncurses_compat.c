@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <termios.h>
+#include <sys/ioctl.h>
 
 /* Global variables that ncurses programs expect */
 int LINES = 24;

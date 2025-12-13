@@ -27,8 +27,8 @@ jobs:
         
     - name: Run MIPS LE cross-compilation for bbsnet and telnet
       run: |
-        chmod +x ./build-bbsnet-telnet.sh
-        ./build-bbsnet-telnet.sh
+        chmod +x ./build_bbsnet.sh
+        ./build_bbsnet.sh
         
     - name: List build artifacts
       run: |

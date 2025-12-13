@@ -59,7 +59,7 @@ export LD="${CROSS_PREFIX}ld"
 export STRIP="${CROSS_PREFIX}strip"
 
 # Combine CFLAGS - don't convert charset, keep as-is
-export FULL_CFLAGS="${MIPS_CFLAGS} -I${SRC_DIR}/include -I/usr/include/ncurses -Wunused"
+export FULL_CFLAGS="${MIPS_CFLAGS} -I${SRC_DIR}/include -Wunused"
 export LDFLAGS="-static -L${SRC_DIR}/lib"
 
 echo "CC = ${CC}"

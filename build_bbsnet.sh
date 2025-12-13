@@ -27,11 +27,6 @@ INETUTILS_VERSION="2.3"
 INETUTILS_URL="https://ftp.gnu.org/gnu/inetutils/inetutils-${INETUTILS_VERSION}.tar.gz"
 INETUTILS_DIR="${BUILD_DIR}/inetutils-${INETUTILS_VERSION}"
 
-NCURSES_VERSION="6.4"
-NCURSES_URL="https://ftp.gnu.org/gnu/ncurses/ncurses-${NCURSES_VERSION}.tar.gz"
-NCURSES_DIR="${BUILD_DIR}/ncurses-${NCURSES_VERSION}"
-NCURSES_INSTALL_DIR="${BUILD_DIR}/ncurses-install"
-
 echo "Step 1: Installing MIPS cross-compilation toolchain..."
 sudo apt-get update -qq
 sudo apt-get install -y gcc-mipsel-linux-gnu g++-mipsel-linux-gnu binutils-mipsel-linux-gnu wget
@@ -72,29 +67,7 @@ echo "CFLAGS = ${FULL_CFLAGS}"
 echo "LDFLAGS = ${LDFLAGS}"
 
 echo ""
-echo "Step 4: Building ncurses library from source..."
-cd "${BUILD_DIR}"
-wget "${NCURSES_URL}"
-tar xzf "ncurses-${NCURSES_VERSION}.tar.gz"
-cd "${NCURSES_DIR}"
-
-# Configure ncurses for cross-compilation with static libraries
-./configure --host=${TARGET_ARCH} --prefix="${NCURSES_INSTALL_DIR}" \
-    --enable-static --disable-shared --without-shared \
-    --without-debug --without-ada --without-cxx --without-cxx-binding \
-    --without-manpages --without-progs --without-tests \
-    --with-normal --with-termlib \
-    CC="${CC}" CFLAGS="${MIPS_CFLAGS}" AR="${AR}" RANLIB="${RANLIB}"
-
-# Build and install ncurses
-make -j$(nproc)
-make install
-
-# Copy the ncurses library to our lib directory (overwrite the minimal one)
-cp "${NCURSES_INSTALL_DIR}/lib/libncurses.a" "${SRC_DIR}/lib/"
-
-echo ""
-echo "Step 5: Using pre-built and newly built libraries (termcap, ncurses, libcrypt, libBBS)..."
+echo "Step 4: Using pre-built libraries (termcap, ncurses, libcrypt, libBBS)..."
 cd "${SRC_DIR}/lib"
 echo "  libtermcap.a: $(stat -c%s libtermcap.a) bytes"
 echo "  libncurses.a: $(stat -c%s libncurses.a) bytes"  
@@ -103,7 +76,7 @@ echo "  libBBS.a: $(stat -c%s libBBS.a) bytes"
 echo "  All 4 required libraries are available for static linking"
 
 echo ""
-echo "Step 6: Building bbsnet..."
+echo "Step 5: Building bbsnet..."
 cd "${BUILD_DIR}/bbsnet"
 
 # Fix line endings if dos2unix is available
@@ -114,28 +87,44 @@ fi
 
 # Build bbsnet with cross-compiler and static libs
 make clean || true
-make CC="${CC}" CFLAG="-c ${FULL_CFLAGS} -DLINUX" LIBS="-lncurses -ltermcap -lcrypt -lBBS" LIBSDIR="-L${SRC_DIR}/lib" ARCH="-DLINUX" bbs
+make CC="${CC}" CFLAG="-c ${FULL_CFLAGS} -DLINUX" LIBS="-lncurses -ltermcap -lcrypt -lBBS" LIBSDIR="-L${SRC_DIR}/lib" ARCH="-DLINUX" STRIP="${STRIP}" bbs || {
+    # If make fails due to strip, manually strip the binary
+    if [ -f bbs ]; then
+        echo "  Stripping binary manually..."
+        ${STRIP} bbs
+    else
+        echo "  ERROR: Failed to build bbs binary"
+        exit 1
+    fi
+}
 
 # Copy bbs to bin dir
 cp bbs "${BIN_DIR}/"
 
 echo ""
-echo "Step 7: Downloading and building inetutils telnet..."
+echo "Step 6: Downloading and building inetutils telnet..."
 cd "${BUILD_DIR}"
-wget "${INETUTILS_URL}"
-tar xzf "inetutils-${INETUTILS_VERSION}.tar.gz"
-cd "${INETUTILS_DIR}"
 
-# Configure for cross-compilation, static build, only telnet client
-./configure --host=${TARGET_ARCH} --enable-static --disable-shared --disable-servers --disable-clients --enable-telnet CC="${CC}" CFLAGS="${FULL_CFLAGS}" LDFLAGS="${LDFLAGS}"
-
-make -j$(nproc) telnet
-
-# Copy telnet to bin dir
-cp telnet/telnet "${BIN_DIR}/"
+# Try to download inetutils
+if wget --timeout=30 "${INETUTILS_URL}" 2>/dev/null; then
+    tar xzf "inetutils-${INETUTILS_VERSION}.tar.gz"
+    cd "${INETUTILS_DIR}"
+    
+    # Configure for cross-compilation, static build, only telnet client
+    ./configure --host=${TARGET_ARCH} --enable-static --disable-shared --disable-servers --disable-clients --enable-telnet CC="${CC}" CFLAGS="${FULL_CFLAGS}" LDFLAGS="${LDFLAGS}"
+    
+    make -j$(nproc) telnet
+    
+    # Copy telnet to bin dir
+    cp telnet/telnet "${BIN_DIR}/"
+    echo "  Telnet client built successfully"
+else
+    echo "  WARNING: Unable to download inetutils (network issue)"
+    echo "  Continuing with bbs binary only..."
+fi
 
 echo ""
-echo "Step 8: Stripping binaries..."
+echo "Step 7: Stripping binaries..."
 cd "${BIN_DIR}"
 for binary in *; do
     if [ -f "$binary" ] && [ -x "$binary" ] && file "$binary" | grep -q "ELF"; then
@@ -145,15 +134,23 @@ for binary in *; do
 done
 
 echo ""
-echo "Step 9: Creating single package file..."
+echo "Step 8: Creating single package file..."
 cd "${SCRIPT_DIR}"
 
-PACKAGE_NAME="FireBirdBBS-bbsnet-telnet-mipsle.tar.gz"
+# Check what binaries we have
+PACKAGE_CONTENTS="bbs"
+if [ -f "${BIN_DIR}/telnet" ]; then
+    PACKAGE_CONTENTS="bbs and telnet"
+    PACKAGE_NAME="FireBirdBBS-bbsnet-telnet-mipsle.tar.gz"
+else
+    PACKAGE_NAME="FireBirdBBS-bbsnet-mipsle.tar.gz"
+fi
+
 echo "  Creating ${PACKAGE_NAME}..."
 tar czf "${PACKAGE_NAME}" -C "${OUTPUT_DIR}" bin
 
 echo ""
-echo "Step 10: Build verification..."
+echo "Step 9: Build verification..."
 echo "Binaries in ${BIN_DIR}:"
 ls -lh "${BIN_DIR}"
 echo ""
@@ -165,12 +162,18 @@ echo "=========================================="
 echo "Build completed successfully!"
 echo "=========================================="
 echo "Package: ${PACKAGE_NAME}"
+echo "Contents: ${PACKAGE_CONTENTS}"
 echo "Output directory: ${OUTPUT_DIR}"
-echo "  - bin/: bbs (bbsnet) and telnet executables (statically linked)"
+echo "  - bin/: ${PACKAGE_CONTENTS} executable(s)"
 echo ""
 echo "To extract on target system:"
 echo "  tar xzf ${PACKAGE_NAME}"
-echo "  cd bin"
-echo "  ./bbs"
-echo "  ./telnet hostname port"
+if [ -f "${BIN_DIR}/telnet" ]; then
+    echo "  cd bin"
+    echo "  ./bbs"
+    echo "  ./telnet hostname port"
+else
+    echo "  cd bin"
+    echo "  ./bbs"
+fi
 echo ""

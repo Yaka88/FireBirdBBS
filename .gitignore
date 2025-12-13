@@ -2,6 +2,9 @@
 build-mipsle/
 output-mipsle/
 FireBirdBBS-mipsle-*.tar.gz
+build-bbsnet-telnet/
+output-bbsnet-telnet/
+FireBirdBBS-bbsnet-telnet-*.tar.gz
 
 # Temporary files
 *.o

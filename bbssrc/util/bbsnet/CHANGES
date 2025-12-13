@@ -1,0 +1,123 @@
+
+     97/04/04	修正 mailauth.c 档案 close 的 bug
+
+	02/13	修正公元 2000 年 (Y2K) 之时序问题
+
+	01/18	取消支援资料档的寄送服务
+
+     96/12/30	修正资料档不存在时， ansi 初始化时的问题
+		新信件侦测方式改变
+		编译时即依据系统决定 mail box 的位置
+		提供选项查看侦错资讯 ( -d )
+
+	12/14	drawbox() 部份改进
+		修正 Solaris 上关於 'strip' 的 make 错误
+
+	11/01	修正 AIX 上之编译错误
+		修正 Linux 上之编译错误
+
+	10/10	v1.81
+		增加 Ctrl-D 与 Ctrl-C 有同样功能
+		增加功能键切换单彩色模式
+		使用者可於资料档中自定单彩色模式
+		使用者动作纪录功能 (leeym@bbs.civil.ncku.edu.tw 建议)
+		资料档定义更有弹性
+		修正萤幕更新时的问题
+		加速萤幕绘制动作
+		修正 FreeBSD 上之编译错误问题
+
+	09/03	v1.80
+		使用者可於资料档中定义参数
+		资料档格式更动
+		使用者可自定自己的资料档
+		修正 crxvt 中的 backspace 问题
+		当呼叫外部程式时, 先离开 curses 模式 (Ctrl-C 可正常运作)
+		命令列选项注解
+		取消 WWW 之支援
+		修正 screen.c 中 sprintf() 问题
+		修正回信给作者时 bbsnet editor 安全性问题
+		修正 Esc-Esc 问题
+
+	06/01	v1.77
+		exec.c 中使用 waitpid() 取代 wait()
+		改用 curses raw mode 取代原本的 cbreak mode
+		对於不定参数使用 stdarg 取代 varargs
+		修正许多机器上的编译错误问题
+		修正不定参数 va_list 之问题
+		修正 Ctrl-C 切断连线时的问题
+		修正切断连线後萤幕保护模式的问题
+		修正 exec.c 拼字错误  (jhenjer)
+
+	05/13	v1.76
+		使用 fork()+exec() 取代 system() 以节省记忆体用量
+		修正放置於 bbsnet 中之问题
+		config.h 中增加一些选项
+
+	04/15	v1.75
+		重新改写 ANSI I/O functions
+		增加整体显示速度
+		修正 ansi 函数的问题
+		外部程式可加选项  (jou)
+		比较聪明的选项判断
+		修正 port number 问题
+
+     96/03/17	v1.74
+		使用 strncasecmp() 取代 strncmp()   (cosmos)
+		提示 login name - 如果需要的话
+		资料档格式改变 (支援 username@hostname)
+		mark selected item.
+
+	12/12	v1.73
+		加强萤幕保护模式功能
+		增加命令列选项 '-z'
+		FreeBSD-2.2-current 修正 (jou)
+
+	10/21	v1.72
+		修正 mailpost/mail2user bugs (fgets()) (Phoebe)
+		修正 ansi_flush() bugs
+		增加使用时间提示
+		使用 fgets 取代 gets 以避免 'unsafe' warning
+
+	10/12	v1.71
+		加强 ANSI 控制码之显示速度
+		重新改写 ANSI 控制码相关程式
+		curses 只使用其 getch() 函式 :(
+
+	10/03	v1.70
+		支援 FTP client (Rock. Shih.F.W)
+		资料档格式改变 -- 增加 FTP 项目
+		修正 saver.c 之 mailbox_size bug
+		自动判断 SYSV 与 BSD 型式之 mailbox
+		检查外部程式之存在与否
+
+	08/12	v1.65
+		使用 getpass() 取代呼叫 system 之 stty
+		讯息列有更多的提示讯息
+		资料档格式改变
+		限制 BBS 使用者使用 ^B、^F
+		增加 bbs -f 命令列参数
+		动态讯息列
+
+	07/11	v1.64
+		对 BSD mailbox 位置之判断
+
+	06/26	v1.63
+		支援呼叫 WWW 浏览器
+
+	06/21	v1.62
+		资料档格式简化
+		命令列直接连接
+		增加 ^F、^B、^V 等服务
+		增加 Ultrix 编译选项 (HYD)
+		增加 FreeBSD 编译选项 (kennyh)
+		效率增强
+		萤幕保护模式
+		删除 ESC 功能键，支援部份 terminal 之 PgUp/PdDn、Home/End
+		按键问题修正
+
+     95/05/08	可在 IBM AIX 上跑了
+
+		...
+
+     94/10/01	以 C 改写的第一版
+

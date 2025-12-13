@@ -1,0 +1,63 @@
+#!/usr/local/bin/perl
+
+# Parse Functions' Utilization
+
+# cdsheen@csie.nctu.edu.tw
+
+while( $procfile = <*.c> ) {
+
+	open( PROCFILE, "$procfile");
+
+	print "function analysis in $procfile:\n";
+
+	$funcline=0;
+
+	while(<PROCFILE>) {
+
+		$funcline++;
+
+		( $prefix, $func ) = /^(\s*[\w\d]*\*?\s+|\s*)\*?(\w+)\s*\([^()]*\)\s*{?$/;
+
+		if ( !$func || ( $func eq "for" ) || ($func eq "while")
+				|| ( $func eq "if") || ( $func eq "switch") ){
+			next;
+		}
+
+		print "    $func():\t(line $funcline)\t\t";
+
+		$match=$m=0;
+
+		while( $file=<*.c>) {
+
+#			next if $file eq $procfile;
+
+			open(TEST, "$file");
+
+			$n=0;
+			while(<TEST>) {
+#				print "$file line $n         \r";
+				$n++;
+				if(/\W$func\W/) {
+					unless($file eq $procfile) {
+						$match++;
+						$m++;
+					}
+					else {
+						$m++;
+					}
+#					print "\t\treferenced by $file line $n\n";
+				}
+			}
+			close(TEST);
+		}
+		if($match==0) {
+			print "no reference.\n";
+			print "Warn: unused function $func() in $procfile\n" if $m==0;
+		}
+		else {
+			print "$match references.\n";
+		}
+	}
+	print "\n";
+	close(PROCFILE);
+}

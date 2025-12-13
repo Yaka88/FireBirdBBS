@@ -1,0 +1,12 @@
+-bap
+-br
+-ncdb
+-cli0.5
+-di4
+-eei
+-nfc1
+-i4
+-nip
+-npsl
+-nsc
+-sob

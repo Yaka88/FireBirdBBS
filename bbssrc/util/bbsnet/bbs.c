@@ -9,7 +9,7 @@
 #include <pwd.h>
 
 #include "config.h"
-
+#include <ncurses.h>
 unsigned int mode;
 struct BBS bbs[BBS_Max];
 int hosttype;

@@ -59,7 +59,7 @@ export LD="${CROSS_PREFIX}ld"
 export STRIP="${CROSS_PREFIX}strip"
 
 # Combine CFLAGS - don't convert charset, keep as-is
-export FULL_CFLAGS="${MIPS_CFLAGS} -I${SRC_DIR}/include -Wunused"
+export FULL_CFLAGS="${MIPS_CFLAGS} -I${SRC_DIR}/include -I/usr/include/ncurses -Wunused"
 export LDFLAGS="-static -L${SRC_DIR}/lib"
 
 echo "CC = ${CC}"
@@ -67,7 +67,16 @@ echo "CFLAGS = ${FULL_CFLAGS}"
 echo "LDFLAGS = ${LDFLAGS}"
 
 echo ""
-echo "Step 4: Building bbsnet..."
+echo "Step 4: Using pre-built libraries (termcap, ncurses, libcrypt, libBBS)..."
+cd "${SRC_DIR}/lib"
+echo "  libtermcap.a: $(stat -c%s libtermcap.a) bytes"
+echo "  libncurses.a: $(stat -c%s libncurses.a) bytes"  
+echo "  libcrypt.a: $(stat -c%s libcrypt.a) bytes"
+echo "  libBBS.a: $(stat -c%s libBBS.a) bytes"
+echo "  All 4 required libraries are available for static linking"
+
+echo ""
+echo "Step 5: Building bbsnet..."
 cd "${BUILD_DIR}/bbsnet"
 
 # Fix line endings if dos2unix is available
@@ -84,7 +93,7 @@ make CC="${CC}" CFLAG="-c ${FULL_CFLAGS} -DLINUX" LIBS="-L${SRC_DIR}/lib -lncurs
 cp bbs "${BIN_DIR}/"
 
 echo ""
-echo "Step 5: Downloading and building inetutils telnet..."
+echo "Step 6: Downloading and building inetutils telnet..."
 cd "${BUILD_DIR}"
 wget "${INETUTILS_URL}"
 tar xzf "inetutils-${INETUTILS_VERSION}.tar.gz"
@@ -99,7 +108,7 @@ make -j$(nproc) telnet
 cp telnet/telnet "${BIN_DIR}/"
 
 echo ""
-echo "Step 6: Stripping binaries..."
+echo "Step 7: Stripping binaries..."
 cd "${BIN_DIR}"
 for binary in *; do
     if [ -f "$binary" ] && [ -x "$binary" ] && file "$binary" | grep -q "ELF"; then
@@ -109,7 +118,7 @@ for binary in *; do
 done
 
 echo ""
-echo "Step 7: Creating single package file..."
+echo "Step 8: Creating single package file..."
 cd "${SCRIPT_DIR}"
 
 PACKAGE_NAME="FireBirdBBS-bbsnet-telnet-mipsle.tar.gz"
@@ -117,7 +126,7 @@ echo "  Creating ${PACKAGE_NAME}..."
 tar czf "${PACKAGE_NAME}" -C "${OUTPUT_DIR}" bin
 
 echo ""
-echo "Step 8: Build verification..."
+echo "Step 9: Build verification..."
 echo "Binaries in ${BIN_DIR}:"
 ls -lh "${BIN_DIR}"
 echo ""

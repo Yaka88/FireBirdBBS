@@ -62,13 +62,7 @@
 #else
 #include <curses.h>
 #endif
-/* Compatibility: some curses headers don't expose LINES/COLS */
-#ifndef LINES
-extern int LINES;
-#endif
-#ifndef COLS
-extern int COLS;
-#endif
+
 #include <time.h>
 
 /* Host structure */

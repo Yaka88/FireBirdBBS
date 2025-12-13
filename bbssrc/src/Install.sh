@@ -2,11 +2,11 @@
 # Install.sh a shell script to install whole BBS
 # CVS: $Id: Install.sh.in,v 1.11 2000/03/11 12:22:36 edwardc Exp $
 
-BBS_HOME=/home/bbs
+BBS_HOME=/home/runner/work/FireBirdBBS/FireBirdBBS
 BBSUID=9999
 BBSGRP=99
 INSTALL="/usr/bin/install -c"
-TARGET=/home/bbs/bin
+TARGET=/home/runner/work/FireBirdBBS/FireBirdBBS/bin
 
 if [ -f "${BBS_HOME}/BOARDS" ] ; then
 	echo "This script will setting up the BBS directory for you on ${BBS_HOME} .."

@@ -23,8 +23,8 @@
 $Id: chat.h.in,v 1.1 2000/01/15 01:45:24 edwardc Exp $
 */
 
-#define MY_BBS_NAME   "新溪流芳站"
-#define MY_BBS_DOMAIN "yaka.yi.org"
+#define MY_BBS_NAME   "火鸟系统 3.0"
+#define MY_BBS_DOMAIN "some.where.on.earth"
 
 /* chat.h - port numbers for the chat rooms -- changing them is wise. */
 #define CHATPORT1 7201

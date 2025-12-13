@@ -2,10 +2,10 @@
 This file is generate by configure $Revision: 1.4 $
 ######################################################
 PERL=/usr/bin/perl
-BBS_ID=yaka
-DOMAIN=bbs.bluelaser.cn
-CNAME=新溪流芳
+BBS_ID=NoName
+DOMAIN=some.where.on.earth
+CNAME=火鸟系统 3.0
 DEFAULTBD=sysop
-BUILD_PLATFORM=linux
+BUILD_PLATFORM=bsd
 LIBCRYPT=DES
 RELDATE=20000220-SNAP

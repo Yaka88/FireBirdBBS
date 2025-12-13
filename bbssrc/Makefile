@@ -18,7 +18,7 @@
 # 3. The developers of this package can be reached by
 #    SYSOP.bbs@bbs.seed.net.tw
 #
-# 4. This Makefile is for "LINUX"
+# 4. This Makefile is for "UNKNOWN"
 #
 # This Makefile is generated automatic by configure
 
@@ -27,14 +27,14 @@
 #############################################################
 
 # The home directory and uid/gid info for user 'bbs'
-BBSHOME  = /home/bbs
+BBSHOME  = /home/runner/work/FireBirdBBS/FireBirdBBS
 BBSUID   = 9999
 BBSGRP   = 99
 
-OS_DEF   = -DLINUX -DTERMIOS
+OS_DEF   = 
 CC       = gcc
 FB_CFLAGS= ${CFLAGS} -Wunused -I../include
-LIBS     = -ltermcap -ldl -lrpcsvc -lbsd -lnsl -lcrypt
+LIBS     = -ltermcap -ldl -lcrypt
 
 INSTALL  = /usr/bin/install -c
 

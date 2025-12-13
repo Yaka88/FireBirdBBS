@@ -6,7 +6,7 @@
 
 CC       = gcc
 CFLAGS   = -g -O2 -I../../include
-BBSHOME	 = /home/bbs
+BBSHOME	 = /home/runner/work/FireBirdBBS/FireBirdBBS
 
 UTILITY  = account averun bbstop bbspop3d bfinger birthday horoscope \
 		   newacct poststat remake usage showuser

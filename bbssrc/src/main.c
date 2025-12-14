@@ -211,7 +211,7 @@ char   *userid;
 int     started = 0;
 
 void
-talk_request()
+talk_request(int sig)
 {
 	signal(SIGUSR1, talk_request);
 	talkrequest = YEA;

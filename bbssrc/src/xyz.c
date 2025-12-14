@@ -489,7 +489,7 @@ x_showuser()
 }
 
 
-/* add by yaka 20001202 start
+// add by yaka 20001202 start
 
 char *
 mgets(fd)
@@ -600,7 +600,7 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 		i=atoi(ans);
 		if (i-1>=0 && i-1 <j)
 		{
-		  sprintf(my_commd,"/usr/bin/telnet -8 %s",connlist[i-1].host);
+		  sprintf(my_commd,"bin/telnet -8 %s",connlist[i-1].host);
 		}
 		else {
 			prints("È¡Ïû");
@@ -627,8 +627,8 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 return;	
 }
 
-add end */		
-
+//add end 		
+/*
 void 
 ent_bnet()
 {
@@ -638,7 +638,7 @@ ent_bnet()
 
 	//exec_cmd(BBSNET, YEA, "bin/bbsnet.sh", "");
 }
-
+*/
 void
 fill_date()
 {

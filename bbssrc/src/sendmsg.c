@@ -512,14 +512,14 @@ r_msg2()
 }
 
 void
-count_msg()
+count_msg(int sig)
 {
 	signal(SIGTTOU, count_msg);
 	msg_num++;
 }
 
 void
-r_msg()
+r_msg(int sig)
 {
 	FILE   *fp;
 	char    buf[256];

@@ -1031,7 +1031,7 @@ x_csh()
 	save_pager = uinfo.pager;
 	uinfo.pager = 0;
 	update_utmp();
-	do_exec("sh", NULL);
+	system("sh", NULL);
 	restore_tty();
 	uinfo.pager = save_pager;
 	update_utmp();

@@ -596,7 +596,7 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 		  i=i+2;
 		}
 		prints("  0.  \033[1;36m离开站台选项\033[m");
-		scanf("%s",&ans);
+		getdata(t_lines - 1, 0, "请选择站台 (输入数字): ", ans, 10, DOECHO, YEA);
 		i=atoi(ans);
 		if (i-1>=0 && i-1 <j)
 		{

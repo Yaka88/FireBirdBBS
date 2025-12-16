@@ -600,7 +600,10 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 		i=atoi(ans);
 		if (i-1>=0 && i-1 <j)
 		{
-		  sprintf(my_commd,"bin/telnet -8 %s",connlist[i-1].host);
+		  if (strncmp(connlist[i-1].host, "ssh", 3) == 0)
+		    strcpy(my_commd, connlist[i-1].host);
+		  else
+		    sprintf(my_commd,"bin/telnet -8 %s",connlist[i-1].host);
 		}
 		else {
 			prints("取消");
@@ -614,10 +617,13 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 	  prints("正在连接\033[1;33;41m%s\033[m...\n",connlist[i-1].name);
 	  prints("连不上时30秒后会自动退出...");
 	  refresh();
-	  system(my_commd);
+	  reset_tty();
+	  do_exec(my_commd, NULL);
+	  restore_tty();
+	  //system(my_commd);
 	  close(myhandle);
 	  clear();
-        }
+	}
 	else
 	{
 	clear();

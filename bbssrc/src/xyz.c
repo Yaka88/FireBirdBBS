@@ -618,9 +618,8 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 	  prints("连不上时30秒后会自动退出...");
 	  refresh();
 	  reset_tty();
-	  do_exec(my_commd, NULL);
+	  system(my_commd);
 	  restore_tty();
-	  //system(my_commd);
 	  close(myhandle);
 	  clear();
 	}

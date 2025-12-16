@@ -601,7 +601,7 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 		if (i-1>=0 && i-1 <j)
 		{
 		  if (strncmp(connlist[i-1].host, "ssh", 3) == 0)
-		    sprintf(my_commd, "/usr/bin/%s", connlist[i-1].host);
+		    sprintf(my_commd, "bin/ssh.sh %s", connlist[i-1].host+4);
 		  else
 		    sprintf(my_commd,"bin/telnet -8 %s",connlist[i-1].host);
 		}
@@ -609,8 +609,8 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 			prints("取消");
 			return;
 		     }
-	myhandle=dup(0);
-	if (myhandle>0)
+//	myhandle=dup(0);
+//	if (myhandle>0)
 	{
 	  clear();
 	  move(0,0);
@@ -618,17 +618,17 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 	  prints("连不上时30秒后会自动退出...");
 	  refresh();
 	  reset_tty();
-	  system(my_commd);
-	  restore_tty();
-	  close(myhandle);
+	system(my_commd);
+	restore_tty();
+//	  close(myhandle);
 	  clear();
-	}
+	}/*
 	else
 	{
 	clear();
 	close(myhandle);
 	prints("登入主机失败...");
-	}
+	}*/
 return;	
 }
 

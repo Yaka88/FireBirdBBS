@@ -601,7 +601,7 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 		if (i-1>=0 && i-1 <j)
 		{
 		  if (strncmp(connlist[i-1].host, "ssh", 3) == 0)
-		    strcpy(my_commd, connlist[i-1].host);
+		    sprintf(my_commd, "/usr/bin/%s", connlist[i-1].host);
 		  else
 		    sprintf(my_commd,"bin/telnet -8 %s",connlist[i-1].host);
 		}

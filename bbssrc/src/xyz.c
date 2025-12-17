@@ -617,6 +617,12 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 	  prints("正在连接\033[1;33;41m%s\033[m...\n",connlist[i-1].name);
 	  prints("连不上时30秒后会自动退出...");
 	  refresh();
+	  fflush(stdout);
+	  fflush(stderr);
+
+		int target_fd = 0; // 既然你能输入数字选择站台，0 肯定是通的
+		dup2(target_fd, 1); // 强制把 stdout 指向用户的 socket
+		dup2(target_fd, 2); // 强制把 stderr 指向用户的 socket
       system(my_commd);
 	  close(myhandle);
 	  clear();

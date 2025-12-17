@@ -186,7 +186,7 @@ so we don't need define this by passing make argument to the complier
 #define BBSHOME "/home/bbs"
 #define BBSNAME "ÐÂÏªÁ÷·¼Õ¾"
 #define BBSID   "yaka"
-#define BBSHOST "yaka.yi.org"
+#define BBSHOST "bbs.bluelaser.cn"
 #define BBSIP	"10.21.41.88"
 
 /*

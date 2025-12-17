@@ -603,7 +603,7 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 		  if (strncmp(connlist[i-1].host, "ssh", 3) == 0)
 		    sprintf(my_commd, "bin/ssh.sh %s", connlist[i-1].host+4);
 		  else
-		    sprintf(my_commd,"bin/telnet.sh %s", connlist[i-1].host);
+		    sprintf(my_commd,"bin/telnet.sh");
 		}
 		else {
 			prints("取消");
@@ -617,7 +617,7 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 	  prints("正在连接\033[1;33;41m%s\033[m...\n",connlist[i-1].name);
 	  prints("连不上时30秒后会自动退出...");
 	  refresh();
-      exec_cmd(BBSNET, YEA, my_commd, "");
+      exec_cmd(BBSNET, YEA, my_commd, connlist[i-1].host);
 	  close(myhandle);
 	  clear();
 	}

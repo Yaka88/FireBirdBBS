@@ -25,9 +25,6 @@ $Id: xyz.c,v 1.1 2000/01/15 01:45:30 edwardc Exp $
 
 #define EXTERN
 #include "bbs.h"
-#include <unistd.h>
-#include <sys/wait.h>
-#include <termios.h>
 
 int     use_define = 0;
 extern int iscolor;
@@ -622,26 +619,9 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 	  refresh();
 	  fflush(stdout);
 	  fflush(stderr);
-
-	// 1. 设置模式 (让回车能传过去)
-	struct termios t;
-	tcgetattr(0, &t);
-	struct termios old = t; // 备份用于恢复
-	t.c_lflag &= ~ICANON;
-	t.c_iflag &= ~ICRNL;
-	tcsetattr(0, TCSANOW, &t);
-	if (fork() == 0) {
-      setsid();          // 这句才是解决 SSH 密码提示出现在错屏幕的唯一钥匙
 	  dup2(0, 1); // 强制把 stdout 指向用户的 socket
 	  dup2(0, 2); // 强制把 stderr 指向用户的 socket 
-    // system(my_commd);
-      execl("/bin/sh", "sh", "-c",my_commd, (char *)0);
-      _exit(1);
-	} else {
-       wait(NULL);        // 父进程在这里安静地等，不干扰输入
-	}
-	// 4. 恢复 (防止 BBS 乱码)
-	tcsetattr(0, TCSANOW, &old);
+      system(my_commd);
 	  close(myhandle);
 	  clear();
 	}

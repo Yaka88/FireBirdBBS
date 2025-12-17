@@ -25,7 +25,7 @@ $Id: xyz.c,v 1.1 2000/01/15 01:45:30 edwardc Exp $
 
 #define EXTERN
 #include "bbs.h"
-#include <termios.h>
+
 int     use_define = 0;
 extern int iscolor;
 
@@ -618,22 +618,10 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 	  prints("连不上时30秒后会自动退出...");
 	  refresh();
 	  fflush(stdout);
+	  fflush(stderr);
 	  dup2(0, 1); // 强制把 stdout 指向用户的 socket
-		struct termios tio;
-		tcgetattr(0, &tio);
-		struct termios old_tio = tio; // 备份
-		// 1. 关闭回车映射 (解决 Enter 重复)
-		tio.c_iflag &= ~ICRNL;
-		// 2. 关闭行缓冲 (解决 SSH 无法输入)// 只有进入非规范模式，SSH 握手才能成功
-		tio.c_lflag &= ~ICANON;
-		// 4. 解决 * 号和杂符的关键：禁用流量控制// 防止系统拦截 Ctrl+S/Q 等字符，这些字符常被误读为杂符
-		tio.c_iflag &= ~(IXON | IXOFF | IXANY);
-
-		tcsetattr(0, TCSANOW, &tio);
-		// --- 执行外部程序 ---
-		system(my_commd);
-		// --- 还原设置 ---
-		tcsetattr(0, TCSANOW, &old_tio);
+	  dup2(0, 2); // 强制把 stderr 指向用户的 socket
+	  system(my_commd);
 	  close(myhandle);
 	  clear();
 	}

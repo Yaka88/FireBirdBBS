@@ -150,11 +150,14 @@ rm_dir(char *fpath)
 
 	*fname++ = '/';
 
-	readdir(dirp);
-	readdir(dirp);
+	//readdir(dirp);
+	//readdir(dirp);
 
 	while (de = readdir(dirp)) {
 		fpath = de->d_name;
+		        /* 显式跳过当前目录和父目录 */
+        if (!strcmp(fpath, ".") || !strcmp(fpath, ".."))
+			continue;
 		if (*fpath) {
 			strcpy(fname, fpath);
 			if (!stat(buf, &st)) {

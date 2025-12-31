@@ -48,7 +48,7 @@ int     pbits, i;
 {
 	char    buf[STRLEN];
 	sprintf(buf, "%c. %-30s %2s", 'A' + i, (use_define) ? user_definestr[i] : permstrings[i],
-		((pbits >> i) & 1 ? "ï¿½ï¿½" : "ï¿½ï¿½"));
+		((pbits >> i) & 1 ? "¡õ" : "¡Á"));
 	move(i + 6 - ((i > 15) ? 16 : 0), 0 + ((i > 15) ? 40 : 0));
 	prints(buf);
 	refresh();
@@ -66,14 +66,14 @@ int     (*showfunc) ();
 	int     i, done = NA;
 	char    choice[3], buf[80];
 	move(4, 0);
-	prints("ï¿½ë°´ï¿½ï¿½ï¿½ï¿½Òªï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½è¶¨%sï¿½ï¿½ï¿½ï¿½ Enter ï¿½ï¿½ï¿½ï¿½.\n", prompt);
+	prints("Çë°´ÏÂÄãÒªµÄ´úÂëÀ´Éè¶¨%s£¬°´ Enter ½áÊø.\n", prompt);
 	move(6, 0);
 	clrtobot();
 	for (i = 0; i <= lastperm; i++) {
 		(*showfunc) (pbits, i, NA);
 	}
 	while (!done) {
-		sprintf(buf, "Ñ¡ï¿½ï¿½(ENTER ï¿½ï¿½ï¿½ï¿½%s): ", ((strcmp(prompt, "È¨ï¿½ï¿½") != 0)) ? "" : "ï¿½ï¿½0 Í£È¨");
+		sprintf(buf, "Ñ¡Ôñ(ENTER ½áÊø%s): ", ((strcmp(prompt, "È¨ÏÞ") != 0)) ? "" : "£¬0 Í£È¨");
 		getdata(t_lines - 1, 0, buf, choice, 2, DOECHO, YEA);
 		*choice = toupper(*choice);
 		if (*choice == '0')
@@ -102,7 +102,7 @@ x_userdefine()
 	modify_user_mode(USERDEF);
 	if (!(id = getuser(currentuser.userid))) {
 		move(3, 0);
-		prints("ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ ID...");
+		prints("´íÎóµÄÊ¹ÓÃÕß ID...");
 		clrtoeol();
 		pressreturn();
 		clear();
@@ -112,10 +112,10 @@ x_userdefine()
 	clrtobot();
 	move(2, 0);
 	use_define = 1;
-	newlevel = setperms(lookupuser.userdefine, "ï¿½ï¿½ï¿½ï¿½", NUMDEFINES, showperminfo);
+	newlevel = setperms(lookupuser.userdefine, "²ÎÊý", NUMDEFINES, showperminfo);
 	move(2, 0);
 	if (newlevel == lookupuser.userdefine)
-		prints("ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½Þ¸ï¿½...\n");
+		prints("²ÎÊýÃ»ÓÐÐÞ¸Ä...\n");
 	else {
 		lookupuser.userdefine = newlevel;
 		currentuser.userdefine = newlevel;
@@ -137,7 +137,7 @@ x_userdefine()
 		update_utmp();
 		if (DEFINE(DEF_ACBOARD))
 			nettyNN = NNread_init();
-		prints("ï¿½ÂµÄ²ï¿½ï¿½ï¿½ï¿½è¶¨ï¿½ï¿½ï¿½...\n\n");
+		prints("ÐÂµÄ²ÎÊýÉè¶¨Íê³É...\n\n");
 	}
 	iscolor = (DEFINE(DEF_COLOR)) ? 1 : 0;
 	pressreturn();
@@ -156,8 +156,8 @@ x_cloak()
 	if (!uinfo.in_chat) {
 		move(1, 0);
 		clrtoeol();
-		prints("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (cloak) ï¿½Ñ¾ï¿½%sï¿½ï¿½!",
-			(uinfo.invisible) ? "ï¿½ï¿½ï¿½ï¿½" : "Í£Ö¹");
+		prints("ÒþÉíÊõ (cloak) ÒÑ¾­%sÁË!",
+			(uinfo.invisible) ? "Æô¶¯" : "Í£Ö¹");
 		pressreturn();
 	}
 	return 0;
@@ -187,17 +187,17 @@ x_edits()
 	static char *e_file[] =
 	{"plans", "signatures", "notes", "logout", NULL};
 	static char *explain_file[] =
-	{"ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½", "Ç©ï¿½ï¿½ï¿½ï¿½", "ï¿½Ô¼ï¿½ï¿½Ä±ï¿½ï¿½ï¿½Â¼", "ï¿½ï¿½Õ¾ï¿½Ä»ï¿½ï¿½ï¿½", NULL};
+	{"¸öÈËËµÃ÷µµ", "Ç©Ãûµµ", "×Ô¼ºµÄ±¸ÍüÂ¼", "ÀëÕ¾µÄ»­Ãæ", NULL};
 	modify_user_mode(GMENU);
 	clear();
 	move(1, 0);
-	prints("ï¿½ï¿½ï¿½Þ¸ï¿½ï¿½Ëµï¿½ï¿½ï¿½\n\n");
+	prints("±àÐÞ¸öÈËµµ°¸\n\n");
 	for (num = 0; e_file[num] != NULL && explain_file[num] != NULL; num++) {
 		prints("[[1;32m%d[m] %s\n", num + 1, explain_file[num]);
 	}
-	prints("[[1;32m%d[m] ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\n", num + 1);
+	prints("[[1;32m%d[m] ¶¼²»Ïë¸Ä\n", num + 1);
 
-	getdata(num + 5, 0, "ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½: ", ans, 2, DOECHO, YEA);
+	getdata(num + 5, 0, "ÄãÒª±àÐÞÄÄÒ»Ïî¸öÈËµµ°¸: ", ans, 2, DOECHO, YEA);
 	if (ans[0] - '0' <= 0 || ans[0] - '0' > num || ans[0] == '\n' || ans[0] == '\0')
 		return;
 
@@ -205,20 +205,20 @@ x_edits()
 	setuserfile(genbuf, e_file[ch]);
 	move(3, 0);
 	clrtobot();
-	sprintf(buf, "(E)ï¿½à¼­ (D)É¾ï¿½ï¿½ %s? [E]: ", explain_file[ch]);
+	sprintf(buf, "(E)±à¼­ (D)É¾³ý %s? [E]: ", explain_file[ch]);
 	getdata(3, 0, buf, ans, 2, DOECHO, YEA);
 	if (ans[0] == 'D' || ans[0] == 'd') {
-		confirm = askyn("ï¿½ï¿½È·ï¿½ï¿½ÒªÉ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½", NA, NA);
+		confirm = askyn("ÄãÈ·¶¨ÒªÉ¾³ýÕâ¸öµµ°¸", NA, NA);
 		if (confirm != 1) {
 			move(5, 0);
-			prints("È¡ï¿½ï¿½É¾ï¿½ï¿½ï¿½Ð¶ï¿½\n");
+			prints("È¡ÏûÉ¾³ýÐÐ¶¯\n");
 			pressreturn();
 			clear();
 			return;
 		}
 		unlink(genbuf);
 		move(5, 0);
-		prints("%s ï¿½ï¿½É¾ï¿½ï¿½\n", explain_file[ch]);
+		prints("%s ÒÑÉ¾³ý\n", explain_file[ch]);
 		sprintf(buf, "delete %s", explain_file[ch]);
 		report(buf);
 		pressreturn();
@@ -229,15 +229,15 @@ x_edits()
 	aborted = vedit(genbuf, NA);
 	clear();
 	if (!aborted) {
-		prints("%s ï¿½ï¿½ï¿½Â¹ï¿½\n", explain_file[ch]);
+		prints("%s ¸üÐÂ¹ý\n", explain_file[ch]);
 		sprintf(buf, "edit %s", explain_file[ch]);
 		if (!strcmp(e_file[ch], "signatures")) {
 			set_numofsig();
-			prints("ÏµÍ³ï¿½ï¿½ï¿½ï¿½ï¿½è¶¨ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½...");
+			prints("ÏµÍ³ÖØÐÂÉè¶¨ÒÔ¼°¶ÁÈëÄãµÄÇ©Ãûµµ...");
 		}
 		report(buf);
 	} else
-		prints("%s È¡ï¿½ï¿½ï¿½Þ¸ï¿½\n", explain_file[ch]);
+		prints("%s È¡ÏûÐÞ¸Ä\n", explain_file[ch]);
 	pressreturn();
 }
 
@@ -259,12 +259,12 @@ x_lockscreen()
 	prints("\n      | |  _  | | | | | |  _  | , <   |  _)_  | | | )   |  |");
 	prints("\n      | |_( ) | (_) | | (_( ) | |\\`\\  | (_( ) | |_) |   |==|");
 	prints("\n      (____/' (_____) (____/' (_) (_) (____/' (____/'   |__|[m\n");
-	prints("\n[1;36mÓ©Ä»ï¿½ï¿½ï¿½ï¿½[33m %19s[36m Ê±ï¿½ï¿½[32m %-12s [36mï¿½ï¿½Ê±ï¿½ï¿½×¡ï¿½ï¿½...[m", ctime(&now), currentuser.userid);
+	prints("\n[1;36mÓ©Ä»ÒÑÔÚ[33m %19s[36m Ê±±»[32m %-12s [36mÔÝÊ±Ëø×¡ÁË...[m", ctime(&now), currentuser.userid);
 	while (*buf == '\0' || !checkpasswd(currentuser.passwd, buf)) {
 		move(18, 0);
 		clrtobot();
 		update_endline();
-		getdata(19, 0, "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô½ï¿½ï¿½ï¿½: ", buf, PASSLEN, NOECHO, YEA);
+		getdata(19, 0, "ÇëÊäÈëÄãµÄÃÜÂëÒÔ½âËø: ", buf, PASSLEN, NOECHO, YEA);
 	}
 }
 
@@ -302,13 +302,13 @@ char   *cmdfile, *param1;
 	int     save_pager;
 	if (num_useshell() >= 20) {
 		clear();
-		prints("Ì«ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½â²¿ï¿½ï¿½Ê½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ã°ï¿½...");
+		prints("Ì«¶àÈËÊ¹ÓÃÍâ²¿³ÌÊ½ÁË£¬ÄãµÈÒ»ÏÂÔÙÓÃ°É...");
 		pressanykey();
 		return;
 	}
 	if (!HAS_PERM(PERM_SYSOP) && heavyload()) {
 		clear();
-		prints("ï¿½ï¿½Ç¸ï¿½ï¿½Ä¿Ç°ÏµÍ³ï¿½ï¿½ï¿½É¹ï¿½ï¿½Ø£ï¿½ï¿½Ë¹ï¿½\ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½...");
+		prints("±§Ç¸£¬Ä¿Ç°ÏµÍ³¸ººÉ¹ýÖØ£¬´Ë¹¦\ÄÜÔÝÊ±²»ÄÜÖ´ÐÐ...");
 		pressanykey();
 		return;
 	}
@@ -358,7 +358,7 @@ x_excearchie()
 	char   *s;
 	if (heavyload()) {
 		clear();
-		prints("ï¿½ï¿½Ç¸ï¿½ï¿½Ä¿Ç°ÏµÍ³ï¿½ï¿½ï¿½É¹ï¿½ï¿½Ø£ï¿½ï¿½Ë¹ï¿½\ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½...");
+		prints("±§Ç¸£¬Ä¿Ç°ÏµÍ³¸ººÉ¹ýÖØ£¬´Ë¹¦\ÄÜÔÝÊ±²»ÄÜÖ´ÐÐ...");
 		pressanykey();
 		return;
 	}
@@ -368,18 +368,18 @@ x_excearchie()
 	prints("\n      |   _   |   __ \\      |   |   |_     _|    ___|");
 	prints("\n      |       |      <   ---|       |_|   |_|    ___|");
 	prints("\n      |___|___|___|__|______|___|___|_______|_______|[0m");
-	prints("\n\n\nï¿½ï¿½Ó­Ê¹ï¿½ï¿½ ARCHIE ï¿½ï¿½\ï¿½ï¿½");
-	prints("\n\nï¿½ï¿½ï¿½ï¿½\ï¿½Ü½ï¿½Îªï¿½ï¿½ï¿½Ð³ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½ FTP Õ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ°ï¿½ÒµÄµï¿½ï¿½ï¿½.");
-	prints("\n\nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ°ï¿½ï¿½ï¿½Ö´ï¿½, ï¿½ï¿½Ö±ï¿½Ó°ï¿½ <ENTER> È¡ï¿½ï¿½ï¿½ï¿½");
+	prints("\n\n\n»¶Ó­Ê¹ÓÃ ARCHIE ¹¦\ÄÜ");
+	prints("\n\n±¾¹¦\ÄÜ½«ÎªÄúÁÐ³öÔÚÄÄ¸ö FTP Õ¾´æÓÐÄúÓûÑ°ÕÒµÄµµ°¸.");
+	prints("\n\nÇëÊäÈëÓûËÑÑ°µÄ×Ö´®, »òÖ±½Ó°´ <ENTER> È¡Ïû¡£");
 	getdata(13, 0, ">", buf, 20, DOECHO, YEA);
 	if (buf[0] == '\0') {
-		prints("\nÈ¡ï¿½ï¿½ï¿½ï¿½Ñ°.....\n");
+		prints("\nÈ¡ÏûËÑÑ°.....\n");
 		pressanykey();
 		return;
 	}
 	for (s = buf; *s != '\0'; s++) {
 		if (isspace(*s)) {
-			prints("\nÒ»ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Ñ°Ò»ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½Ì«Ì°ï¿½ï¿½ï¿½!!");
+			prints("\nÒ»´ÎÖ»ÄÜËÑÑ°Ò»¸ö×Ö´®À², ²»ÄÜÌ«Ì°ÐÄà¸!!");
 			pressanykey();
 			return;
 		}
@@ -387,8 +387,8 @@ x_excearchie()
 	exec_cmd(ARCHIE, YEA, "bin/archie.sh", buf);
 	sprintf(buf, "tmp/archie.%s.%05d", currentuser.userid, uinfo.pid);
 	if (1 /* dashf(buf) */ ) {
-		if (askyn("Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½", NA, NA) == YEA)
-			mail_file(buf, currentuser.userid, "ARCHIE ï¿½ï¿½Ñ°ï¿½ï¿½ï¿½");
+		if (askyn("Òª½«½á¹û¼Ä»ØÐÅÏäÂð", NA, NA) == YEA)
+			mail_file(buf, currentuser.userid, "ARCHIE ËÑÑ°½á¹û");
 		ansimore(buf, YEA);
 		unlink(buf);
 	}
@@ -402,7 +402,7 @@ x_dict()
 	int     whichdict;
 	if (heavyload()) {
 		clear();
-		prints("ï¿½ï¿½Ç¸ï¿½ï¿½Ä¿Ç°ÏµÍ³ï¿½ï¿½ï¿½É¹ï¿½ï¿½Ø£ï¿½ï¿½Ë¹ï¿½\ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½...");
+		prints("±§Ç¸£¬Ä¿Ç°ÏµÍ³¸ººÉ¹ýÖØ£¬´Ë¹¦\ÄÜÔÝÊ±²»ÄÜÖ´ÐÐ...");
 		pressanykey();
 		return;
 	}
@@ -413,19 +413,19 @@ x_dict()
 	prints("\n    |  --  |  ||  __||   _|  ||  _  |     |  _  |   _|  |  |");
 	prints("\n    |_____/|__||____||____|__||_____|__|__|___._|__| |___  |");
 	prints("\n                                                     |_____|[m");
-	prints("\n\n\nï¿½ï¿½Ó­Ê¹ï¿½Ã±ï¿½Õ¾ï¿½ï¿½ï¿½Öµä¡£");
-	prints("\nï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ÒªÎª[1;33mï¿½ï¿½Ó¢ï¿½ï¿½ï¿½ï¿½[mï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½[1;33mï¿½ï¿½ï¿½ï¿½Ó¢ï¿½ï¿½[mï¿½ï¿½Ñ¯ï¿½ï¿½");
-	prints("\n\nÏµÍ³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½, ï¿½Ô¶ï¿½ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¢ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¡ï¿½");
-	prints("\n\n\nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¢ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½Ö±ï¿½Ó°ï¿½ <ENTER> È¡ï¿½ï¿½ï¿½ï¿½");
+	prints("\n\n\n»¶Ó­Ê¹ÓÃ±¾Õ¾µÄ×Öµä¡£");
+	prints("\n±¾×ÖµäÖ÷ÒªÎª[1;33m¡¸Ó¢ºº¡¹[m²¿·Ö, µ«Òà¿É×÷[1;33m¡¸ººÓ¢¡¹[m²éÑ¯¡£");
+	prints("\n\nÏµÍ³½«¸ù¾ÝÄúËùÊäÈëµÄ×Ö´®, ×Ô¶¯ÅÐ¶ÏÄúËùÒª·­²éµÄÊÇÓ¢ÎÄ×Ö»¹ÊÇÖÐÎÄ×Ö¡£");
+	prints("\n\n\nÇëÊäÈëÄúÓû·­²éµÄÓ¢ÎÄ×Ö»òÖÐÎÄ×Ö, »òÖ±½Ó°´ <ENTER> È¡Ïû¡£");
 	getdata(15, 0, ">", buf, 30, DOECHO, YEA);
 	if (buf[0] == '\0') {
-		prints("\nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...");
+		prints("\nÄú²»Ïë²éÁËà¸...");
 		pressanykey();
 		return;
 	}
 	for (s = buf; *s != '\0'; s++) {
 		if (isspace(*s)) {
-			prints("\nÒ»ï¿½ï¿½Ö»ï¿½Ü²ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½Ì«Ì°ï¿½ï¿½ï¿½!!");
+			prints("\nÒ»´ÎÖ»ÄÜ²éÒ»¸ö×ÖÀ², ²»ÄÜÌ«Ì°ÐÄà¸!!");
 			pressanykey();
 			return;
 		}
@@ -443,8 +443,8 @@ x_dict()
 		exec_cmd(DICT, YEA, "bin/edict.sh", buf);
 	sprintf(buf, "tmp/dict.%s.%05d", currentuser.userid, uinfo.pid);
 	if (dashf(buf)) {
-		if (askyn("Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½", NA, NA) == YEA)
-			mail_file(buf, currentuser.userid, "ï¿½Öµï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½");
+		if (askyn("Òª½«½á¹û¼Ä»ØÐÅÏäÂð", NA, NA) == YEA)
+			mail_file(buf, currentuser.userid, "×Öµä²éÑ¯½á¹û");
 		ansimore(buf, YEA);
 		unlink(buf);
 	}
@@ -474,16 +474,16 @@ x_showuser()
 	char    buf[STRLEN];
 	modify_user_mode(SYSINFO);
 	clear();
-	stand_title("ï¿½ï¿½Õ¾Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï²ï¿½Ñ¯");
+	stand_title("±¾Õ¾Ê¹ÓÃÕß×ÊÁÏ²éÑ¯");
 	ansimore("etc/showuser.msg", NA);
 	getdata(20, 0, "Parameter: ", buf, 30, DOECHO, YEA);
 	if ((buf[0] == '\0') || dashf("tmp/showuser.result"))
 		return;
-	securityreport("ï¿½ï¿½Ñ¯Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
+	securityreport("²éÑ¯Ê¹ÓÃÕß×ÊÁÏ");
 	exec_cmd(SYSINFO, YEA, "bin/showuser.sh", buf);
 	sprintf(buf, "tmp/showuser.result");
 	if (dashf(buf)) {
-		mail_file(buf, currentuser.userid, "Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï²ï¿½Ñ¯ï¿½ï¿½ï¿½");
+		mail_file(buf, currentuser.userid, "Ê¹ÓÃÕß×ÊÁÏ²éÑ¯½á¹û");
 		unlink(buf);
 	}
 }
@@ -587,7 +587,7 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 	move(2,0);
 	clrtobot();
 	prints("\033[;44;37m     %-20s         %-44s\n\033[m\n",
-		"Õ¾Ì¨ï¿½ï¿½ï¿½ï¿½","Õ¾Ì¨ï¿½ï¿½ï¿½ï¿½");
+		"Õ¾Ì¨Ãû³Æ","Õ¾Ì¨Ãû³Æ");
 		i=0;
 		while(i<j)
 		{
@@ -595,8 +595,8 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 		  i+1,connlist[i].name,i+2,connlist[i+1].name);
 		  i=i+2;
 		}
-		prints("  0.  \033[1;36mï¿½ë¿ªÕ¾Ì¨Ñ¡ï¿½ï¿½\033[m");
-		getdata(t_lines - 1, 0, "ï¿½ï¿½Ñ¡ï¿½ï¿½Õ¾Ì¨ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½): ", ans, 10, DOECHO, YEA);
+		prints("  0.  \033[1;36mÀë¿ªÕ¾Ì¨Ñ¡Ïî\033[m");
+		getdata(t_lines - 1, 0, "ÇëÑ¡ÔñÕ¾Ì¨ (ÊäÈëÊý×Ö): ", ans, 10, DOECHO, YEA);
 		i=atoi(ans);
 		if (i-1>=0 && i-1 <j)
 		{
@@ -606,35 +606,31 @@ if ((fd=open("etc/connlist",O_RDONLY))>=0)
 		    sprintf(my_commd,"bin/telnet.sh %s", connlist[i-1].host);
 		}
 		else {
-			prints("È¡ï¿½ï¿½");
+			prints("È¡Ïû");
 			return;
 		     }
-/*	myhandle=dup(0);
+	myhandle=dup(0);
 	if (myhandle>=0)
-	{*/
+	{
 	  clear();
 	  move(0,0);
-	  prints("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\033[1;33;41m%s\033[m...\n",connlist[i-1].name);
-	  prints("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±30ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½Ë³ï¿½...");
+	  prints("ÕýÔÚÁ¬½Ó\033[1;33;41m%s\033[m...\n",connlist[i-1].name);
+	  prints("Á¬²»ÉÏÊ±30Ãëºó»á×Ô¶¯ÍË³ö...");
 	  refresh();
-	//  fflush(stdout);
-	//  fflush(stderr);
-	//  dup2(0, 1); // Ç¿ï¿½Æ°ï¿½ stdout Ö¸ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ socket
-	 // dup2(0, 2); // Ç¿ï¿½Æ°ï¿½ stderr Ö¸ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ socket 
-     if (isatty(0))
-        reset_tty();
-	 system(my_commd);
-	 if (isatty(0))
-        restore_tty();
-	 // close(myhandle);
+	  fflush(stdout);
+	  fflush(stderr);
+	  dup2(0, 1); // Ç¿ÖÆ°Ñ stdout Ö¸ÏòÓÃ»§µÄ socket
+	  dup2(0, 2); // Ç¿ÖÆ°Ñ stderr Ö¸ÏòÓÃ»§µÄ socket 
+      system(my_commd);
+	  close(myhandle);
 	  clear();
-	/*}
+	}
 	else
 	{
 	clear();
 	//close(myhandle);
-	prints("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½...");
-	}*/
+	prints("µÇÈëÖ÷»úÊ§°Ü...");
+	}
 return;	
 }
 
@@ -672,9 +668,9 @@ fill_date()
 	strftime(s, 3, "%S", mytm);
 
 	next = (time_t) time(0) - ((atoi(h) * 3600) + (atoi(m) * 60) + atoi(s)) +
-		86400;		/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0:0:00 ï¿½ï¿½Ê±ï¿½ï¿½, È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ */
+		86400;		/* Ëã³ö½ñÌì 0:0:00 µÄÊ±¼ä, È»ááÔÙÍùáá¼ÓÒ»Ìì */
 
-	sprintf(genbuf, "ï¿½ï¿½ï¿½ï¿½ï¿½Õ¸ï¿½ï¿½ï¿½, ï¿½ï¿½Ò»ï¿½Î¸ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ %s", Cdate(&next));
+	sprintf(genbuf, "¼ÍÄîÈÕ¸üÐÂ, ÏÂÒ»´Î¸üÐÂÊ±¼ä %s", Cdate(&next));
 	report(genbuf);
 
 	buf = (char *) malloc(80);

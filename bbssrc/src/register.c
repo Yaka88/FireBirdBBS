@@ -104,7 +104,7 @@ getnewuserid()
 		for (i = 0; i < MAXUSERS; i++) {
 			if (read(fd, &utmp, size) != size)
 				break;
-			val = compute_user_value(&utmp);
+			val = 0;//compute_user_value(&utmp);
 			if (utmp.userid[0] != '\0' && val < 0) {
 				sprintf(genbuf, "#%d %-12s %15.15s %d %d %d",
 					i + 1, utmp.userid, ctime(&(utmp.lastlogin)) + 4,

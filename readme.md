@@ -174,7 +174,7 @@ It should report MIPS 32-bit LSB executable.
 - Project: FireBirdBBS 3.0
 - Target: MIPS 32-bit Little-Endian
 - Build script: `build-mipsle.sh`
-- Document version: v0.2
+- Document version: v0.3
 
 ## License
 

@@ -197,7 +197,7 @@ file bin/bbsd
 - **项目**: FireBirdBBS 3.0
 - **编译目标**: MIPS 32-bit Little Endian
 - **编译脚本**: build-mipsle.sh
-- **文档版本**: 1.0
+- **文档版本**: v0.3
 
 ## 许可证
 

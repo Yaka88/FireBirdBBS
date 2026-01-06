@@ -1,10 +1,12 @@
 # FireBirdBBS MIPS 32-bit Little Endian 交叉编译说明
 
+English version: [readme.md](readme.md)
+
 ## 概述
 
 本文档说明如何将 FireBirdBBS 交叉编译为 32 位 MIPS Little Endian 平台的程序。
 
-FireBirdBBS 是一个用 C 语言编写的字符界面 BBS 站系统，原本运行在 Intel x86 32 位平台（约 2000 年代），使用 GB18030 中文编码。
+FireBirdBBS 是一个用 C 语言编写的字符界面 BBS 站系统，原本运行在 Intel x86 32 位平台（约 2000 年代），使用 GBK 中文编码。
 
 ## 编译要求
 
@@ -49,15 +51,11 @@ MIPS_CFLAGS="-mips32 -mabi=32 -EL -fno-stack-protector -fcommon -O2 -U_TIME_BITS
 - **libcrypt.a** - 加密库
 - **libBBS.a** - BBS 核心功能库
 
-#### 动态链接的库
-系统 C 库采用动态链接：
 - **libc.so** - C 标准库
 - **libm.so** - 数学库
 - **libdl.so** - 动态加载库
 - **libpthread.so** - 线程库
 - 其他必要的系统库
-
-动态库文件会被复制到 `lib/` 目录，程序使用 RPATH 设置确保优先使用本地库文件而非系统库。
 
 ## 使用方法
 
@@ -145,7 +143,7 @@ chmod +x bin/*
 
 ## 编码说明
 
-本项目保留原有的 **GB18030** 中文编码格式，未转换为 UTF-8。源代码中的中文字符串和注释均保持原始编码，以确保与原始系统兼容。
+本项目保留原有的 **GBK** 中文编码格式，未转换为 UTF-8。源代码中的中文字符串和注释均保持原始编码，以确保与原始系统兼容。
 
 ## 时间格式
 
@@ -211,5 +209,3 @@ file bin/bbsd
 https://github.com/Yaka88/FireBirdBBS
 
 ---
-
-最后更新: 2024-12-11
